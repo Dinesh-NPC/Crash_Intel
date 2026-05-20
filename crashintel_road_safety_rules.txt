@@ -88,6 +88,7 @@ DRIVING IN RAIN:
 - Never drive through flooded roads — 15 cm of water can stall vehicles
   30 cm of water can carry away a small car
 
+
 DRIVING IN FOG:
 - Use low-beam headlights — never high beam in fog (reflects back)
 - Use rear fog lights if available
