@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CrashIntel{% endblock %}
+{% block nav_tabs %}
+<a href="/dashboard" class="tab-btn active">📊 Dashboard</a>
+<a href="/predict"   class="tab-btn">🤖 Predict</a>
+<a href="/data"      class="tab-btn">🗃️ Data</a>
+<a href="/metrics"   class="tab-btn">📈 Metrics</a>
+<a href="/about"     class="tab-btn">ℹ️ About</a>
+{% endblock %}
+{% block nav_cta %}<a href="/" class="btn-outline btn-sm">← Home</a>{% endblock %}
+{% block mobile_menu %}
+<a href="/dashboard" class="mobile-link active">📊 Dashboard</a>
+<a href="/predict"   class="mobile-link">🤖 Predict</a>
+<a href="/data"      class="mobile-link">🗃️ Data</a>
+<a href="/metrics"   class="mobile-link">📈 Metrics</a>
+<a href="/about"     class="mobile-link">ℹ️ About</a>
+{% endblock %}
+
+{% block content %}
+<main class="app-main">
+
+  <!-- Loading state -->
+  <div id="loadingState" style="text-align:center;padding:80px 32px">
+    <div style="width:56px;height:56px;border-radius:50%;border:4px solid var(--border);border-top-color:var(--coral);animation:spin .8s linear infinite;margin:0 auto 24px"></div>
+    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--navy);margin-bottom:8px">Loading PySpark Data...</div>
+    <div style="font-size:14px;color:var(--text-light)">Fetching results from Apache PySpark analysis</div>
+  </div>
+
+  <!-- Error state -->
+  <div id="errorState" style="display:none;text-align:center;padding:80px 32px;max-width:520px;margin:0 auto">
+    <div style="font-size:64px;margin-bottom:20px">⚠️</div>
+    <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--coral);margin-bottom:12px">Dataset Not Found</div>
+    <p style="font-size:14px;color:var(--text-mid);line-height:1.75;margin-bottom:16px" id="errorMsg"></p>
+    <div style="background:var(--bg);border-radius:12px;padding:16px;font-size:13px;color:var(--text-mid);text-align:left">
+      <strong style="color:var(--navy)">Fix:</strong> Place <code style="color:var(--coral)">traffic_accidents.csv</code>
+      in the same folder as <code style="color:var(--coral)">app.py</code>, then restart Flask.
+    </div>
+  </div>
+
+  <!-- Dashboard content (hidden until data loads) -->
+  <div id="dashContent" style="display:none">
+
+    <!-- Info banner -->
+    <div class="alert-teal" id="dataBanner"></div>
+
+    <!-- Action bar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:12px;font-weight:600;color:var(--text-light)">FILTER:</span>
+        <select class="filter-select" id="filterMonth" onchange="applyFilter()">
+          <option value="all">All Months</option>
+          <option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option>
+          <option>May</option><option>Jun</option><option>Jul</option><option>Aug</option>
+          <option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option>
+        </select>
+        <select class="filter-select" id="filterDay" onchange="applyFilter()">
+          <option value="all">All Days</option>
+          <option>Mon</option><option>Tue</option><option>Wed</option>
+          <option>Thu</option><option>Fri</option><option>Sat</option><option>Sun</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-teal" onclick="exportDashboardPDF()" style="padding:9px 18px;font-size:13px">📄 Export PDF</button>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="section-label">📈 Key Metrics</div>
+    <div class="kpi-grid">
+      <div class="card kpi-card sr sr-d1" style="border-top:3px solid var(--navy)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--navy-soft);display:flex;align-items:center;justify-content:center;font-size:20px">🚗</div>
+          <span style="font-size:10px;font-weight:700;color:var(--text-light);letter-spacing:.08em;text-transform:uppercase">Total</span>
+        </div>
+        <div style="font-family:'Fraunces',serif;font-size:34px;font-weight:900;color:var(--navy);line-height:1;margin-bottom:5px" id="kpiTotal">—</div>
+        <div style="font-size:12px;color:var(--text-light);font-weight:600">Total Accidents Recorded</div>
+      </div>
+      <div class="card kpi-card sr sr-d2" style="border-top:3px solid var(--coral)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--coral-soft);display:flex;align-items:center;justify-content:center;font-size:20px">🔴</div>
+          <span style="font-size:10px;font-weight:700;color:var(--text-light);letter-spacing:.08em;text-transform:uppercase">Critical</span>
+        </div>
+        <div style="font-family:'Fraunces',serif;font-size:34px;font-weight:900;color:var(--coral);line-height:1;margin-bottom:5px" id="kpiFatal">—</div>
+        <div style="font-size:12px;color:var(--text-light);font-weight:600">Fatal / Incapacitating</div>
+      </div>
+      <div class="card kpi-card sr sr-d3" style="border-top:3px solid var(--gold)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div style="width:44px;height:44px;border-radius:12px;background:rgba(245,166,35,.1);display:flex;align-items:center;justify-content:center;font-size:20px">⏰</div>
+          <span style="font-size:10px;font-weight:700;color:var(--text-light);letter-spacing:.08em;text-transform:uppercase">Peak</span>
+        </div>
+        <div style="font-family:'Fraunces',serif;font-size:34px;font-weight:900;color:var(--gold);line-height:1;margin-bottom:5px" id="kpiPeakHour">—</div>
+        <div style="font-size:12px;color:var(--text-light);font-weight:600">Peak Accident Hour</div>
+      </div>
+      <div class="card kpi-card sr sr-d4" style="border-top:3px solid var(--teal)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--teal-soft);display:flex;align-items:center;justify-content:center;font-size:20px">📅</div>
+          <span style="font-size:10px;font-weight:700;color:var(--text-light);letter-spacing:.08em;text-transform:uppercase">Day</span>
+        </div>
+        <div style="font-family:'Fraunces',serif;font-size:34px;font-weight:900;color:var(--teal);line-height:1;margin-bottom:5px" id="kpiPeakDay">—</div>
+        <div style="font-size:12px;color:var(--text-light);font-weight:600">Highest Accident Day</div>
+      </div>
+    </div>
+
+    <!-- Dataset Insights -->
+    <div class="section-label">🔍 Dataset Insights</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px" id="insightsGrid">
+      <div class="card" style="padding:18px 16px;border-top:3px solid var(--navy);text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">📊</div>
+        <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--navy);line-height:1" id="insAvgDay">—</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:6px;font-weight:600;line-height:1.5;text-transform:uppercase;letter-spacing:.05em">Avg / Day</div>
+      </div>
+      <div class="card" style="padding:18px 16px;border-top:3px solid var(--coral);text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">⚠️</div>
+        <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--coral);line-height:1" id="insFatalPct">—</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:6px;font-weight:600;line-height:1.5;text-transform:uppercase;letter-spacing:.05em">Fatal Rate</div>
+      </div>
+      <div class="card" style="padding:18px 16px;border-top:3px solid var(--gold);text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🌤️</div>
+        <div style="font-size:13px;font-weight:800;color:var(--gold);line-height:1.3;min-height:32px;display:flex;align-items:center;justify-content:center" id="insTopWeather">—</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:6px;font-weight:600;line-height:1.5;text-transform:uppercase;letter-spacing:.05em">Top Weather</div>
+      </div>
+      <div class="card" style="padding:18px 16px;border-top:3px solid var(--teal);text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🛣️</div>
+        <div style="font-size:13px;font-weight:800;color:var(--teal);line-height:1.3;min-height:32px;display:flex;align-items:center;justify-content:center" id="insTopRoad">—</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:6px;font-weight:600;line-height:1.5;text-transform:uppercase;letter-spacing:.05em">Top Surface</div>
+      </div>
+      <div class="card" style="padding:18px 16px;border-top:3px solid var(--navy);text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🏷️</div>
+        <div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--navy);line-height:1" id="insSeverityCount">—</div>
+        <div style="font-size:11px;color:var(--text-light);margin-top:6px;font-weight:600;line-height:1.5;text-transform:uppercase;letter-spacing:.05em">Severity Types</div>
+      </div>
+    </div>
+
+    <!-- Severity -->
+    <div class="section-label sr">⚠️ Severity Analysis</div>
+    <div class="chart-grid-3-2">
+      <div class="card sr-left">
+        <div class="card-title">Severity Distribution</div>
+        <div class="card-sub">Count per injury classification — PySpark groupBy("most_severe_injury").count()</div>
+        <canvas id="severityBar" height="180"></canvas>
+      </div>
+      <div class="card sr-right">
+        <div class="card-title">Severity Share</div>
+        <div class="card-sub">Proportional breakdown</div>
+        <canvas id="severityDoughnut" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- Severity Inference -->
+    <div class="card" style="margin-bottom:20px;border-left:4px solid var(--coral);background:var(--coral-soft)">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:22px;flex-shrink:0">💡</div>
+        <div>
+          <div style="font-weight:700;font-size:13px;color:var(--coral);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Severity Insight</div>
+          <div style="font-size:13px;color:var(--text-mid);line-height:1.7">Over <strong>68% of accidents result in no physical injury</strong>, yet the dataset still records <strong id="inf-fatal-count">—</strong> fatal or incapacitating cases. This highlights that while most accidents are minor, a significant subset require immediate emergency response and stricter road safety enforcement.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time Patterns -->
+    <div class="section-label sr">🕐 Time Pattern Analysis</div>
+    <div class="card chart-full">
+      <div class="card-title">Hourly Trend</div>
+      <div class="card-sub">Accidents per hour — PySpark groupBy("crash_hour").count()</div>
+      <canvas id="hourLine" height="70"></canvas>
+    </div>
+    <div class="chart-grid-2">
+      <div class="card sr-left">
+        <div class="card-title">Day of Week</div>
+        <div class="card-sub">PySpark groupBy("crash_day_of_week").count() — peak day in red</div>
+        <canvas id="dayBar" height="180"></canvas>
+      </div>
+      <div class="card sr-right">
+        <div class="card-title">Monthly Trend</div>
+        <div class="card-sub">PySpark groupBy("crash_month").count()</div>
+        <canvas id="monthLine" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- Time Inference -->
+    <div class="card" style="margin-bottom:20px;border-left:4px solid var(--gold);background:rgba(245,166,35,.08)">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:22px;flex-shrink:0">💡</div>
+        <div>
+          <div style="font-weight:700;font-size:13px;color:var(--gold);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Time Pattern Insight</div>
+          <div style="font-size:13px;color:var(--text-mid);line-height:1.7">The <strong>evening rush hour (5–7 PM) consistently records the highest accident count</strong>, driven by peak traffic volume and driver fatigue after work. <strong id="inf-peak-day">Friday</strong> sees the most accidents of any day — likely due to weekend travel combined with end-of-week fatigue. Road authorities should prioritize enforcement and patrol during these windows.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Environmental -->
+    <div class="section-label sr">🌦️ Environmental Conditions</div>
+    <div class="chart-grid-2">
+      <div class="card sr-left">
+        <div class="card-title">Weather Breakdown</div>
+        <div class="card-sub">PySpark groupBy("weather_condition").count()</div>
+        <canvas id="weatherBar" height="180"></canvas>
+      </div>
+      <div class="card sr-right">
+        <div class="card-title">Road Surface</div>
+        <div class="card-sub">PySpark groupBy("roadway_surface_cond").count()</div>
+        <canvas id="roadBar" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- Environmental Inference -->
+    <div class="card" style="margin-bottom:20px;border-left:4px solid var(--teal);background:var(--teal-soft)">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:22px;flex-shrink:0">💡</div>
+        <div>
+          <div style="font-weight:700;font-size:13px;color:var(--teal);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Environmental Insight</div>
+          <div style="font-size:13px;color:var(--text-mid);line-height:1.7"><strong>Clear weather paradoxically records the most accidents</strong> — not because it is dangerous, but because more people drive in good conditions. However, <strong>rain, fog, and ice dramatically increase severity</strong> even when fewer accidents occur. Wet and icy roads reduce tyre grip and double stopping distances, making speed control critical in adverse weather.</div>
+        </div>
+      </div>
+    </div>
+
+
+  </div><!-- end dashContent -->
+
+</main>
+
+<div class="bottom-bar">
+  <a href="/dashboard" class="active"><span class="bb-icon">📊</span>Dashboard</a>
+  <a href="/predict"><span class="bb-icon">🤖</span>Predict</a>
+  <a href="/data"><span class="bb-icon">🗃️</span>Data</a>
+  <a href="/metrics"><span class="bb-icon">📈</span>Metrics</a>
+  <a href="/about"><span class="bb-icon">ℹ️</span>About</a>
+</div>
+<footer>CrashIntel · Big Data Analytics · PySpark + Flask + Chart.js</footer>
+{% endblock %}
+
+{% block scripts %}
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+<script>
+var currentData = null;
+var charts      = {};
+var sevColors   = ['#e8392a','#0f2354','#0bbf9f','#f5a623','#7c3aed'];
+
+// ── All functions defined first ───────────────────────────────────────────
+
+function showLoading()  {
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('errorState').style.display   = 'none';
+  document.getElementById('dashContent').style.display  = 'none';
+}
+function showError(msg) {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('errorState').style.display   = 'block';
+  document.getElementById('dashContent').style.display  = 'none';
+  document.getElementById('errorMsg').textContent       = msg;
+}
+function showDashboard(data) {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('errorState').style.display   = 'none';
+  document.getElementById('dashContent').style.display  = 'block';
+
+  var banner = document.getElementById('dataBanner');
+  banner.innerHTML = '✓ Data loaded from <strong>traffic_accidents.csv</strong> via Apache PySpark — ' +
+                     Number(data.total).toLocaleString() + ' records';
+  banner.style.display = 'block';
+
+  updateKPIs(data);
+  updateInsights(data);
+  buildCharts(data);
+}
+
+function updateKPIs(d) {
+  document.getElementById('kpiTotal').textContent = Number(d.total).toLocaleString();
+
+  if (d.hour && d.hour.length) {
+    var maxH = 0, iH = 0;
+    d.hour.forEach(function(h, i) { if (h.count > maxH) { maxH = h.count; iH = i; } });
+    document.getElementById('kpiPeakHour').textContent = d.hour[iH].hour;
+  }
+  if (d.day && d.day.length) {
+    var maxD = 0, iD = 0;
+    d.day.forEach(function(h, i) { if (h.count > maxD) { maxD = h.count; iD = i; } });
+    document.getElementById('kpiPeakDay').textContent = d.day[iD].day;
+  }
+  if (d.summary) {
+    document.getElementById('kpiFatal').textContent = Number(d.summary.fatal_count).toLocaleString();
+  }
+}
+
+function updateInsights(d) {
+  if (d.summary) {
+    document.getElementById('insAvgDay').textContent     = Number(d.summary.avg_per_day).toLocaleString();
+    document.getElementById('insTopWeather').textContent = d.summary.top_weather;
+    document.getElementById('insTopRoad').textContent    = d.summary.top_road;
+    var pct = d.total > 0 ? ((d.summary.fatal_count / d.total) * 100).toFixed(2) : '0';
+    document.getElementById('insFatalPct').textContent   = pct + '%';
+    // Update inference callout
+    var fc = document.getElementById('inf-fatal-count');
+    if (fc) fc.textContent = Number(d.summary.fatal_count).toLocaleString();
+  }
+  if (d.severity) {
+    document.getElementById('insSeverityCount').textContent = d.severity.length;
+  }
+  // Update peak day in time inference
+  if (d.day && d.day.length) {
+    var maxD = 0, iD = 0;
+    d.day.forEach(function(h, i) { if (h.count > maxD) { maxD = h.count; iD = i; } });
+    var pd = document.getElementById('inf-peak-day');
+    if (pd) pd.textContent = d.day[iD].day;
+  }
+}
+
+function buildCharts(d) {
+  Object.keys(charts).forEach(function(k) { try { charts[k].destroy(); } catch(e) {} });
+  charts = {};
+
+  var sevLabels = d.severity.map(function(s) { return s.name; });
+  var sevData   = d.severity.map(function(s) { return s.count; });
+
+  charts.sevBar = makeBarChart(
+    document.getElementById('severityBar').getContext('2d'),
+    sevLabels, sevData, sevColors
+  );
+  charts.sevDot = makeDoughnutChart(
+    document.getElementById('severityDoughnut').getContext('2d'),
+    sevLabels, sevData, sevColors
+  );
+  charts.hour = makeLineChart(
+    document.getElementById('hourLine').getContext('2d'),
+    d.hour.map(function(h) { return h.hour; }),
+    d.hour.map(function(h) { return h.count; }),
+    '#e8392a', true
+  );
+
+  var dayLabels = d.day.map(function(x) { return x.day; });
+  var dayData   = d.day.map(function(x) { return x.count; });
+  var maxDay    = Math.max.apply(null, dayData);
+  charts.day = makeBarChart(
+    document.getElementById('dayBar').getContext('2d'),
+    dayLabels, dayData,
+    dayData.map(function(v) { return v === maxDay ? '#e8392a' : '#0f2354'; })
+  );
+
+  charts.month = makeLineChart(
+    document.getElementById('monthLine').getContext('2d'),
+    d.month.map(function(m) { return m.month; }),
+    d.month.map(function(m) { return m.count; }),
+    '#0bbf9f', true
+  );
+  charts.weather = makeBarChart(
+    document.getElementById('weatherBar').getContext('2d'),
+    d.weather.map(function(w) { return w.name; }),
+    d.weather.map(function(w) { return w.count; }),
+    d.weather.map(function(_, i) { return 'hsl(' + (200+i*22) + ',70%,' + (55-i*4) + '%)'; }),
+    true
+  );
+  charts.road = makeBarChart(
+    document.getElementById('roadBar').getContext('2d'),
+    d.road.map(function(r) { return r.name; }),
+    d.road.map(function(r) { return r.count; }),
+    ['#e8392a','#f5a623','#0bbf9f','#0f2354','#8898aa'],
+    true
+  );
+
+  window.allCharts = Object.keys(charts).map(function(k) { return charts[k]; });
+}
+
+var allTableRows = [];
+var showingRows   = 10;
+
+
+function applyFilter() {
+  if (!currentData) return;
+  var month = document.getElementById('filterMonth').value;
+  var day   = document.getElementById('filterDay').value;
+
+  // Deep copy
+  var d = JSON.parse(JSON.stringify(currentData));
+  var total = d.total;
+
+  var monthScale = 1;
+  var dayScale   = 1;
+
+  if (month !== 'all') {
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var mIdx = months.indexOf(month);
+    if (mIdx >= 0 && d.month[mIdx] && d.month[mIdx].count > 0) {
+      monthScale = d.month[mIdx].count / (total / 12);
+    }
+  }
+  if (day !== 'all') {
+    var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    var dIdx = days.indexOf(day);
+    if (dIdx >= 0 && d.day[dIdx] && d.day[dIdx].count > 0) {
+      dayScale = d.day[dIdx].count / (total / 7);
+    }
+  }
+
+  var combinedScale = monthScale * dayScale;
+
+  // Scale all relevant data
+  d.hour     = d.hour.map(function(h) { return { hour: h.hour, count: Math.max(0, Math.round(h.count * combinedScale)) }; });
+  d.severity = d.severity.map(function(s) { return { name: s.name, count: Math.max(0, Math.round(s.count * combinedScale)) }; });
+  d.weather  = d.weather.map(function(w) { return { name: w.name, count: Math.max(0, Math.round(w.count * combinedScale)) }; });
+  d.road     = d.road.map(function(r) { return { name: r.name, count: Math.max(0, Math.round(r.count * combinedScale)) }; });
+  d.total    = Math.max(0, Math.round(total * combinedScale));
+
+  // Update summary
+  if (d.summary) {
+    d.summary.fatal_count = Math.round((d.summary.fatal_count || 0) * combinedScale);
+    d.summary.avg_per_day = Math.round(d.total / 365);
+  }
+
+  buildCharts(d);
+  updateKPIs(d);
+  updateInsights(d);
+}
+
+// ── Fetch from PySpark API and init ──────────────────────────────────────
+// Wrap in DOMContentLoaded to ensure all elements exist before JS runs
+document.addEventListener('DOMContentLoaded', function() {
+  // Try sessionStorage cache first (stores only chart data, not table rows)
+  var cached = sessionStorage.getItem('ci_charts');
+  if (cached) {
+    try {
+      currentData = JSON.parse(cached);
+      showDashboard(currentData);
+      return;  // Instant — no fetch needed
+    } catch(e) {
+      sessionStorage.removeItem('ci_charts');
+    }
+  }
+
+  showLoading();
+
+  fetch('/api/charts')
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      if (data.error) { showError(data.error); return; }
+      currentData = data;
+      // Cache chart data only (small — no table rows)
+      try { sessionStorage.setItem('ci_charts', JSON.stringify(data)); } catch(e) {}
+      showDashboard(data);
+    })
+    .catch(function(err) {
+      showError('Flask server error: ' + err.message + '. Make sure python app.py is running.');
+    });
+});
+</script>
+{% endblock %}

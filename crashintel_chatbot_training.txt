@@ -1,0 +1,334 @@
+================================================================
+CRASHINTEL — CHATBOT TRAINING CONTENT
+Road Safety Analytics Platform
+================================================================
+
+================================================================
+SECTION 1 — PROJECT OVERVIEW
+================================================================
+
+CrashIntel is a Big Data Analytics web application built as a
+Semester 6 project by students of the Information Technology
+department at Kumaraguru College of Technology.
+
+Team Members:
+- Dinesh Kumar T – 23BIT023
+- Indira S – 23BIT033
+- Jasir Ahamed M – 23BIT035
+- Kaviya Sree RS – 23BIT042
+
+Tech Stack:
+- Apache PySpark 3.3.2 — distributed data processing and groupBy analysis
+- Flask (Python) — web framework and REST API
+- scikit-learn — Logistic Regression model training
+- Chart.js 4 — interactive dashboard visualizations
+- Java 8 — PySpark JVM runtime
+- Pandas — data manipulation and table preview
+- Google Colab — model training environment
+
+Purpose:
+CrashIntel processes road accident data using Apache PySpark,
+visualizes crash patterns through interactive dashboards, and
+predicts accident severity using a trained Logistic Regression
+machine learning model. The platform supports smart road safety
+decision-making by helping users understand when, where, and
+under what conditions accidents are most likely to occur and
+be severe.
+
+Pages in the application:
+- Dashboard: 7 interactive charts with month/day filters
+- Data Explorer: Browse, search, filter and export all accident records
+- Predict: ML-based severity predictor using 8 input factors
+- Metrics: Model accuracy, precision, recall and F1-score
+- About: Team and project information
+
+================================================================
+SECTION 2 — DATASET INFORMATION
+================================================================
+
+Dataset: traffic_accidents.csv
+Total Records: 209,306 accident records
+Source: Road accident database
+
+Column Descriptions:
+- crash_hour: Hour of the day when accident occurred (0 to 23)
+- crash_day_of_week: Day of week (1=Monday to 7=Sunday)
+- crash_month: Month number (1=January to 12=December)
+- num_units: Number of vehicles involved in the accident
+- most_severe_injury: Worst injury in the accident (target variable for ML)
+- weather_condition: Weather at time of crash (Clear, Rain, Snow, Fog, etc.)
+- lighting_condition: Light conditions (Daylight, Dark, Dawn, Dusk, etc.)
+- traffic_control_device: Traffic control present (Signal, Stop Sign, None, etc.)
+- roadway_surface_cond: Road surface condition (Dry, Wet, Ice, Snow/Slush, etc.)
+
+All PySpark analysis is done using groupBy operations on this dataset,
+mirroring the Google Colab notebook analysis pipeline.
+
+================================================================
+SECTION 3 — KEY DATASET FINDINGS FROM PYSPARK ANALYSIS
+================================================================
+
+SEVERITY DISTRIBUTION:
+PySpark operation: groupBy("most_severe_injury").count()
+- NO INDICATION OF INJURY: ~142,000 records (68% of all accidents)
+- NONINCAPACITATING INJURY: ~38,000 records (18%)
+- REPORTED, NOT EVIDENT: ~18,000 records (9%)
+- INCAPACITATING INJURY: ~8,000 records (4%)
+- FATAL: ~3,100 records (1.5%)
+
+Insight: Most accidents result in no physical injury. However,
+the 1.5% fatal rate still represents over 3,000 deaths in the dataset.
+
+PEAK ACCIDENT HOURS:
+PySpark operation: groupBy("crash_hour").count().orderBy("crash_hour")
+- Highest risk: 5 PM to 6 PM (evening rush hour)
+- Second highest: 3 PM to 4 PM (afternoon traffic)
+- Morning rush: 7 AM to 9 AM is also high risk
+- Safest hours: 3 AM to 4 AM (minimal traffic volume)
+- Night hours (10 PM to 4 AM) have fewer accidents but higher severity rate
+- Recommendation: Avoid driving during 4 PM to 7 PM if possible
+
+DAY OF WEEK ANALYSIS:
+PySpark operation: groupBy("crash_day_of_week").count()
+- Most accidents: Friday (highest total)
+- Second: Thursday and Wednesday
+- Least accidents: Sunday
+- Weekend nights (Friday and Saturday late night) have higher severity
+- Recommendation: Extra caution on Friday evenings
+
+MONTHLY TRENDS:
+PySpark operation: groupBy("crash_month").count()
+- Highest accident months: October, November, December
+- Summer months June through August are also elevated
+- Lowest: February (fewer driving days in the month)
+- Recommendation: Winter months require increased road safety measures
+
+WEATHER CONDITIONS:
+PySpark operation: groupBy("weather_condition").count()
+- Clear weather has the MOST accidents by count (due to high traffic volume)
+- Rain significantly increases accident severity
+- Snow and ice have fewer accidents but much higher fatal rate
+- Fog has the highest severity ratio per accident
+- Recommendation: In rain or fog, reduce speed and increase following distance
+
+ROAD SURFACE CONDITIONS:
+PySpark operation: groupBy("roadway_surface_cond").count()
+- Dry roads: Most accidents by count (high traffic volume)
+- Wet roads: Second most, with higher severity rate
+- Ice: Fewer total accidents but very high severity
+- Snow or Slush: High severity, especially for fatal incidents
+- Recommendation: Wet and icy roads require significantly reduced speed
+
+================================================================
+SECTION 4 — ML MODEL INFORMATION
+================================================================
+
+Model Type: Logistic Regression
+Library: scikit-learn
+Training Environment: Google Colab
+Model File: model.pkl (loaded by Flask on startup)
+
+Training Pipeline (mirrors PySpark MLlib):
+Step 1 - StringIndexer: Converts text columns to numeric indices
+Step 2 - OneHotEncoder: Binary encodes categorical features
+Step 3 - VectorAssembler: Combines all features into one vector
+Step 4 - LogisticRegression: Trains classifier on assembled features
+
+Features used for training (8 input factors):
+1. crash_hour — hour of day (0 to 23)
+2. crash_day_of_week — day number (1 to 7)
+3. crash_month — month number (1 to 12)
+4. num_units — number of vehicles involved
+5. weather_condition — weather at time of crash
+6. lighting_condition — lighting at crash location
+7. traffic_control_device — type of traffic control
+8. roadway_surface_cond — road surface condition
+
+Target Variable: most_severe_injury
+Classes: NO INDICATION OF INJURY, NONINCAPACITATING INJURY,
+REPORTED NOT EVIDENT, INCAPACITATING INJURY, FATAL
+
+Training split: 80% training / 20% testing
+Training records: 167,444
+Test records: 41,862
+Max iterations: 1000
+Random state: 42
+
+================================================================
+SECTION 5 — MODEL PERFORMANCE METRICS
+================================================================
+
+Overall Accuracy: 73.62%
+Correct predictions on test set: 30,820 out of 41,862
+
+Per-Class Performance:
+- NO INDICATION OF INJURY: Precision 73.8%, Recall 99.8%, F1 84.8%
+- NONINCAPACITATING INJURY: Precision 32.3%, Recall 0.8%, F1 1.6%
+
+Note on model performance:
+The model achieves 73.62% accuracy but this is largely because 68%
+of the dataset is the "No Indication of Injury" class. This is called
+class imbalance — the model learns to predict the majority class more
+often. In a production road safety system, techniques like SMOTE
+oversampling or class_weight balancing would be applied to improve
+detection of rare but critical classes like FATAL accidents.
+
+The 73.62% accuracy means the model is correct about 3 in 4 times
+on the test set, which is a reasonable baseline for a multi-class
+imbalanced dataset.
+
+================================================================
+SECTION 6 — SEVERITY PREDICTION GUIDE
+================================================================
+
+How the Predict page works:
+Users enter 8 road condition factors and the trained Logistic
+Regression model predicts the most likely severity class.
+
+Risk Factors and their impact:
+- Time of day: Night hours (10 PM to 4 AM) carry highest risk (+3 points)
+  Rush hours (4 PM to 7 PM) carry moderate risk (+1 point)
+- Weather: Rain, Snow, Sleet, Fog each add significant risk (+2 points)
+- Road surface: Ice and Snow/Slush add high risk (+2 points)
+- Lighting: Dark roads with no controls are very dangerous (+2 points)
+- Traffic control: No signals or controls increase risk (+1 point)
+- Vehicles involved: 3 or more vehicles add high risk (+2 points)
+  2 vehicles add moderate risk (+1 point)
+
+Prediction output levels:
+- LOW RISK (Green): Score 0 to 4 — No Indication of Injury likely
+- MODERATE RISK (Yellow): Score 5 to 7 — Non-Incapacitating Injury likely
+- HIGH RISK (Red): Score 8 to 10 — Fatal or Incapacitating Injury likely
+
+================================================================
+SECTION 7 — ROAD SAFETY DECISION SUPPORT
+================================================================
+
+For Drivers:
+Q: When is the safest time to drive?
+A: Early morning hours (5 AM to 7 AM) and midday (10 AM to 2 PM)
+   have the lowest accident rates based on the dataset analysis.
+
+Q: What weather condition is most dangerous?
+A: While clear weather has the most total accidents, fog and snow
+   have the highest severity per accident. Avoid driving in fog
+   and snow whenever possible.
+
+Q: Which day is safest to drive?
+A: Sunday has the lowest total accident count in the dataset.
+   Friday evening is consistently the highest risk window.
+
+Q: How does road surface affect safety?
+A: Icy roads increase fatal accident probability significantly.
+   Even wet roads double the severity risk compared to dry roads.
+   Reduce speed by at least 30% on wet roads and 50% on icy roads.
+
+Q: What is the most common cause of accidents in the dataset?
+A: The combination of high traffic volume (rush hour), dry roads,
+   and clear weather accounts for the highest number of accidents.
+   This is because more vehicles on the road means more opportunities
+   for collisions, even in good conditions.
+
+For Road Safety Authorities:
+Q: When should traffic police be deployed for maximum impact?
+A: Friday evenings between 4 PM and 8 PM account for the highest
+   accident rates. Deploying enforcement during this window addresses
+   the highest-risk period in the dataset.
+
+Q: Which infrastructure improvement would reduce fatalities most?
+A: Adding traffic signals at uncontrolled intersections and improving
+   road lighting on dark stretches would address the top contributing
+   factors to high-severity accidents in the dataset.
+
+Q: What months need the most road safety attention?
+A: October through December show the highest accident counts.
+   Increased patrolling, road maintenance, and public awareness
+   campaigns during these months would have the highest impact.
+
+Q: How can we reduce severity even if we cannot reduce accident count?
+A: The dataset shows that better lighting, proper traffic controls,
+   and road surface maintenance (removing ice and slush quickly)
+   significantly reduce severity even when accident volume stays high.
+
+================================================================
+SECTION 8 — FREQUENTLY ASKED QUESTIONS
+================================================================
+
+Q: What is CrashIntel?
+A: CrashIntel is a road accident analytics platform built using
+   Apache PySpark, Flask, and Machine Learning. It analyzes
+   209,306 accident records to uncover safety patterns and
+   predict accident severity.
+
+Q: How does the severity predictor work?
+A: It uses a Logistic Regression model trained on 167,444 records
+   in Google Colab. You enter 8 road condition factors and the
+   model predicts whether the likely severity is Low, Moderate
+   or High Risk.
+
+Q: What is Apache PySpark used for in this project?
+A: PySpark reads the traffic_accidents.csv dataset and runs
+   distributed groupBy operations to compute accident counts by
+   severity, hour, day, month, weather, and road surface.
+   These results power all the dashboard charts.
+
+Q: How accurate is the ML model?
+A: The model achieves 73.62% accuracy on the test set (41,862 records).
+   This means roughly 3 in 4 predictions are correct. The main
+   limitation is class imbalance since 68% of accidents result
+   in no injury.
+
+Q: What is the most dangerous time to drive?
+A: Friday evenings between 5 PM and 7 PM, especially in rain or
+   on wet roads, represent the highest-risk combination in the dataset.
+
+Q: How many fatal accidents are in the dataset?
+A: Approximately 3,100 accidents are classified as FATAL, representing
+   about 1.5% of the total 209,306 records.
+
+Q: What does the Data Explorer page show?
+A: The Data Explorer lets you browse all accident records with
+   search, filter by severity class, sort any column, paginate
+   through results, and export filtered data as a CSV file.
+
+Q: Who built this project?
+A: CrashIntel was built by Dinesh Kumar T (23BIT023), Indira S (23BIT033),
+   Jasir Ahamed M (23BIT035), and Kaviya Sree RS (23BIT042) from
+   the Information Technology department at Kumaraguru College of
+   Technology as a Semester 6 Big Data Analytics project.
+
+Q: What is the difference between the Predict page and the Metrics page?
+A: The Predict page uses the trained model to predict severity for
+   a specific set of road conditions you enter. The Metrics page
+   shows how well that model performed during training — accuracy,
+   precision, recall and F1-score per severity class.
+
+Q: Is this platform only for students?
+A: While built as an academic project, the platform demonstrates
+   real-world decision support capabilities. The same approach
+   can be applied by road safety authorities, traffic departments,
+   and urban planners to make data-driven decisions about road
+   infrastructure and enforcement priorities.
+
+================================================================
+SYSTEM PROMPT — USE THIS IN CHATBASE SETTINGS
+================================================================
+
+You are a Road Safety Assistant for CrashIntel, a Big Data Analytics
+platform that analyzes 209,306 road accident records using Apache PySpark
+and predicts accident severity using Logistic Regression.
+
+Your role is to help users understand road accident patterns, interpret
+dashboard charts, explain severity predictions, and support smart road
+safety decisions.
+
+Always answer based on the CrashIntel dataset findings. Be specific with
+numbers when you know them. If a question is unrelated to road safety,
+accident analysis, or this platform, politely redirect to road safety topics.
+
+Keep answers concise, clear, and actionable. When relevant, suggest what
+a driver or road authority should do based on the data.
+
+Project built by: Dinesh Kumar T, Indira S, Jasir Ahamed M, Kaviya Sree RS
+Institution: Kumaraguru College of Technology, Information Technology
+================================================================

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}CrashIntel — Road Accident Analytics{% endblock %}
+{% block nav_cta %}<a href="/dashboard" class="btn-primary btn-sm">Launch App →</a>{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="pill pill-coral fu0">🔬 Big Data Analytics Project</span>
+      <h1 class="hero-title fu1">Decode Road<br><em>Accidents</em><br>with Data &amp; AI</h1>
+      <p class="hero-desc fu2">A PySpark-powered analytics platform that turns raw traffic collision data into actionable insights — with interactive charts and ML-based severity predictions.</p>
+      <div class="hero-ctas fu2">
+        <a href="/dashboard" class="btn-primary">🚀 View Dashboard</a>
+        <a href="/predict"   class="btn-outline">🤖 Try Predictor</a>
+      </div>
+      <div class="hero-tags fu3">
+        <span class="hero-tag">Apache PySpark</span>
+        <span class="hero-tag">Flask</span>
+        <span class="hero-tag">Chart.js</span>
+        <span class="hero-tag">Scikit-learn</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="visual-card-main float">
+        <div class="visual-card-row">
+          <div class="visual-card-icon">🚦</div>
+          <div><div class="visual-card-label">Severity Analysis</div><div class="visual-card-sub">PySpark groupBy classification</div></div>
+          <span class="pill pill-teal" style="margin-left:auto">Live</span>
+        </div>
+        <div class="visual-mini-bars">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;height:57px;background:#e8392a;border-radius:4px 4px 0 0"></div><div class="visual-mini-label">None</div></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;height:23px;background:#0f2354;border-radius:4px 4px 0 0"></div><div class="visual-mini-label">Mild</div></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;height:17px;background:#0bbf9f;border-radius:4px 4px 0 0"></div><div class="visual-mini-label">Rep</div></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;height:8px;background:#f5a623;border-radius:4px 4px 0 0"></div><div class="visual-mini-label">Inc</div></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;height:2px;background:#7c3aed;border-radius:4px 4px 0 0"></div><div class="visual-mini-label">Fatal</div></div>
+        </div>
+      </div>
+      <div class="visual-grid">
+        <div class="visual-card-sm float2"><div style="font-size:26px;margin-bottom:4px">⏰</div><div class="vc-num">Peak Hour</div><div class="vc-lbl">Highest accident rate</div></div>
+        <div class="visual-card-sm visual-card-coral float3"><div style="font-size:26px;margin-bottom:4px">🔴</div><div class="vc-num">73.6%</div><div class="vc-lbl">Model accuracy</div></div>
+        <div class="visual-card-sm visual-card-navy float4"><div class="vc-row"><div><div class="vc-tag">PREDICTION RESULT</div><div class="vc-val">Low Risk — No Injury</div></div><div class="vc-circle">🟢</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<section class="stats-bar">
+  <div class="stats-inner">
+    <div class="sr sr-d1"><div class="stat-value" style="color:#e8392a">200K+</div><div class="stat-label">Accidents Analyzed</div></div>
+    <div class="sr sr-d2"><div class="stat-value" style="color:#0bbf9f">8</div><div class="stat-label">Prediction Factors</div></div>
+    <div class="sr sr-d3"><div class="stat-value" style="color:#e8392a">5</div><div class="stat-label">Severity Classes</div></div>
+    <div class="sr sr-d4"><div class="stat-value" style="color:#0bbf9f">73.6%</div><div class="stat-label">ML Accuracy</div></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section">
+  <div class="section-head sr">
+    <span class="pill pill-navy">Platform Features</span>
+    <h2>Everything you need to<br>analyze road safety</h2>
+    <p>Built on Apache PySpark for distributed data processing and scikit-learn for ML predictions.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card sr sr-d1"><div class="feature-icon float6" style="background:#fff1f0">📊</div><h3>Rich Analytics</h3><p>7 interactive Chart.js visualizations — severity, time patterns, weather and road conditions with real insights.</p></div>
+    <div class="feature-card sr sr-d2"><div class="feature-icon float5" style="background:#eef1f9">⚡</div><h3>PySpark Processing</h3><p>All groupBy operations run on Apache PySpark — same pipeline as the Colab notebook.</p></div>
+    <div class="feature-card sr sr-d3"><div class="feature-icon float6" style="background:#e8faf7">🤖</div><h3>ML Predictor</h3><p>Logistic Regression model trained in Google Colab predicts accident severity in real time.</p></div>
+    <div class="feature-card sr sr-d4"><div class="feature-icon float5" style="background:#f0f4ff">💬</div><h3>ARIA Assistant</h3><p>AI-powered road safety chatbot trained on accident data to answer queries and support decisions.</p></div>
+  </div>
+</section>
+
+<!-- DID YOU KNOW — redesigned as stat cards -->
+<section style="padding:80px 32px;background:var(--navy)">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="section-head sr" style="margin-bottom:48px">
+      <span class="pill" style="background:rgba(232,57,42,.2);color:#ff8a7a;border:1px solid rgba(232,57,42,.3)">Road Safety Facts</span>
+      <h2 style="color:white;margin-top:14px">The reality of road accidents</h2>
+      <p style="color:rgba(255,255,255,.5)">Key statistics that make road safety analytics critical for saving lives.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="sr sr-d1" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:32px 28px">
+        <div style="font-size:48px;margin-bottom:16px" class="float">🚨</div>
+        <div style="font-family:'Fraunces',serif;font-size:44px;font-weight:900;color:#e8392a;line-height:1;margin-bottom:10px">1/min</div>
+        <div style="font-size:15px;font-weight:700;color:white;margin-bottom:8px">Every Minute Counts</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.7">A road accident occurs every minute in India. Over 4,50,000 accidents are reported annually — one of the highest in the world.</div>
+      </div>
+      <div class="sr sr-d2" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:32px 28px">
+        <div style="font-size:48px;margin-bottom:16px" class="float2">⏰</div>
+        <div style="font-family:'Fraunces',serif;font-size:44px;font-weight:900;color:#f5a623;line-height:1;margin-bottom:10px">5–7 PM</div>
+        <div style="font-size:15px;font-weight:700;color:white;margin-bottom:8px">Peak Danger Window</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.7">Evening rush hour consistently records the highest accident count. Driver fatigue after work combined with peak traffic volume creates the most dangerous window.</div>
+      </div>
+      <div class="sr sr-d3" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:32px 28px">
+        <div style="font-size:48px;margin-bottom:16px" class="float3">🌧️</div>
+        <div style="font-family:'Fraunces',serif;font-size:44px;font-weight:900;color:#0bbf9f;line-height:1;margin-bottom:10px">2×</div>
+        <div style="font-size:15px;font-weight:700;color:white;margin-bottom:8px">Weather Multiplies Risk</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.7">Rain doubles stopping distance. Fog reduces visibility to under 10 meters. Ice makes roads 10× more dangerous than dry conditions.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARIA section — clean card style matching platform -->
+<section style="padding:80px 32px;background:var(--bg)">
+  <div style="max-width:900px;margin:0 auto">
+    <div class="card sr" style="padding:40px;display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center">
+      <div style="width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,#0f2354,#1a3a80);display:flex;align-items:center;justify-content:center;font-size:40px;flex-shrink:0" class="float4">💬</div>
+      <div>
+        <span class="pill pill-navy" style="margin-bottom:12px;display:inline-block">AI Assistant</span>
+        <h2 style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:var(--text);margin-bottom:10px;line-height:1.2">ARIA — Accident Risk Intelligence Assistant</h2>
+        <p style="font-size:14px;color:var(--text-mid);line-height:1.75;margin-bottom:20px">ARIA is trained on our dataset findings and Indian road safety rules. Ask about accident patterns, safety tips, what conditions are most dangerous, or anything road safety related. Look for the chat bubble on every page.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span style="padding:5px 12px;border-radius:20px;background:var(--bg);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-mid)">🕐 Peak hour analysis</span>
+          <span style="padding:5px 12px;border-radius:20px;background:var(--bg);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-mid)">🌧️ Weather risk</span>
+          <span style="padding:5px 12px;border-radius:20px;background:var(--bg);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-mid)">🛡️ Safety tips</span>
+          <span style="padding:5px 12px;border-radius:20px;background:var(--bg);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-mid)">📊 Dataset insights</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <span class="pill pill-white sr">Ready to explore?</span>
+  <h2 class="sr">Explore the analytics platform</h2>
+  <p class="sr">Powered by Apache PySpark · Logistic Regression · Chart.js · ARIA AI Assistant</p>
+  <div class="cta-btns sr">
+    <a href="/dashboard" class="btn-primary">🚀 Launch Dashboard</a>
+    <a href="/predict"   class="btn-ghost">🤖 Try Predictor</a>
+    <a href="/metrics"   class="btn-ghost">📈 ML Metrics</a>
+  </div>
+</section>
+
+<footer class="landing-footer">
+  <div class="logo-text">Crash<span style="color:#e8392a">Intel</span></div>
+  <p>Big Data Analytics Project · PySpark + Flask + Chart.js</p>
+</footer>
+{% endblock %}

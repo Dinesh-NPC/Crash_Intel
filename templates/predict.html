@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+{% block title %}Predict — CrashIntel{% endblock %}
+{% block nav_tabs %}
+<a href="/dashboard" class="tab-btn">📊 Dashboard</a>
+<a href="/predict"   class="tab-btn active">🤖 Predict</a>
+<a href="/data"      class="tab-btn">🗃️ Data</a>
+<a href="/metrics"   class="tab-btn">📈 Metrics</a>
+<a href="/about"     class="tab-btn">ℹ️ About</a>
+{% endblock %}
+{% block nav_cta %}<a href="/" class="btn-outline btn-sm">← Home</a>{% endblock %}
+{% block mobile_menu %}
+<a href="/dashboard" class="mobile-link">📊 Dashboard</a>
+<a href="/predict"   class="mobile-link active">🤖 Predict</a>
+<a href="/data"      class="mobile-link">🗃️ Data</a>
+<a href="/metrics"   class="mobile-link">📈 Metrics</a>
+<a href="/about"     class="mobile-link">ℹ️ About</a>
+{% endblock %}
+
+{% block head %}
+<style>
+.predict-tabs{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.ptab{padding:10px 20px;border-radius:10px;border:2px solid var(--border);background:var(--card-bg);
+      font-size:13px;font-weight:700;cursor:pointer;color:var(--text-light);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.ptab.active{border-color:var(--navy);background:var(--navy);color:white}
+.ptab:hover:not(.active){border-color:var(--navy);color:var(--navy)}
+.pred-panel{display:none}.pred-panel.active{display:block}
+.cause-top3{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.cause-row{display:flex;align-items:center;gap:10px}
+.cause-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.cause-bar{height:100%;border-radius:4px;transition:width .8s ease}
+.cause-label{font-size:12px;font-weight:600;color:var(--text);min-width:200px;max-width:260px;line-height:1.3}
+.cause-pct{font-size:12px;font-weight:700;width:40px;text-align:right;color:var(--text-mid)}
+.fatal-gauge{display:flex;align-items:center;justify-content:center;gap:32px;margin:20px 0;flex-wrap:wrap}
+.gauge-half{text-align:center}
+.gauge-num{font-family:'Fraunces',serif;font-size:48px;font-weight:900;line-height:1}
+.gauge-lbl{font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.model-badge{display:inline-flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);
+             border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--text-light);margin-top:12px}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="app-main">
+  <div class="predict-wrap">
+    <div class="predict-head">
+      <h2>CrashIntel Predictor</h2>
+      <p>Two AI models — Severity · Fatal Risk — trained on 200K+ traffic records</p>
+    </div>
+
+    <!-- Input Form (shared across all three models) -->
+    <div class="predict-grid">
+      <div class="card">
+        <div style="font-weight:700;color:var(--text);margin-bottom:16px;font-size:14px">⏱️ Time &amp; Vehicle</div>
+        <div class="fields-stack">
+          <div><label class="field-label">Crash Hour (0–23)</label>
+            <select id="f_hour" class="field-select">{% for h in range(24) %}<option value="{{h}}" {% if h==8 %}selected{% endif %}>{{h}}</option>{% endfor %}</select></div>
+          <div><label class="field-label">Day of Week</label>
+            <select id="f_day" class="field-select">
+              <option value="1">1 - Monday</option><option value="2">2 - Tuesday</option><option value="3">3 - Wednesday</option>
+              <option value="4">4 - Thursday</option><option value="5" selected>5 - Friday</option>
+              <option value="6">6 - Saturday</option><option value="7">7 - Sunday</option>
+            </select></div>
+          <div><label class="field-label">Month</label>
+            <select id="f_month" class="field-select">{% for m in range(1,13) %}<option value="{{m}}" {% if m==6 %}selected{% endif %}>{{m}}</option>{% endfor %}</select></div>
+          <div><label class="field-label">Number of Units</label>
+            <select id="f_units" class="field-select">
+              <option value="1">1</option><option value="2" selected>2</option>
+              <option value="3">3</option><option value="4">4</option><option value="5+">5+</option>
+            </select></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;color:var(--text);margin-bottom:16px;font-size:14px">🌦️ Environmental Factors</div>
+        <div class="fields-stack">
+          <div><label class="field-label">Weather Condition</label>
+            <select id="f_weather" class="field-select"><option selected>Clear</option><option>Rain</option><option>Snow</option><option>Fog</option><option>Sleet</option><option>Cloudy</option><option>Unknown</option></select></div>
+          <div><label class="field-label">Lighting Condition</label>
+            <select id="f_lighting" class="field-select"><option selected>Daylight</option><option>Dawn</option><option>Dusk</option><option>Dark - Lighted Road</option><option>Dark - No Controls</option><option>Dark - Unknown Lighting</option></select></div>
+          <div><label class="field-label">Traffic Control Device</label>
+            <select id="f_traffic" class="field-select"><option selected>Traffic Signal</option><option>Stop Sign</option><option>No Controls</option><option>None</option><option>Yield Sign</option><option>Other</option></select></div>
+          <div><label class="field-label">Road Surface Condition</label>
+            <select id="f_road" class="field-select"><option selected>Dry</option><option>Wet</option><option>Snow/Slush</option><option>Ice</option><option>Sand/Mud/Dirt</option><option>Unknown</option></select></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prediction Type Tabs -->
+    <div style="margin:24px 0 8px;font-size:13px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.07em">Choose Prediction</div>
+    <div class="predict-tabs">
+      <button class="ptab active" onclick="switchTab('severity',this)">🔴 Accident Severity</button>
+      <button class="ptab" onclick="switchTab('fatal',this)">💀 Fatal Risk</button>
+    </div>
+
+    <!-- ─── Panel 1: Severity ────────────────────────────────────────────── -->
+    <div id="panel_severity" class="pred-panel active">
+      <button class="btn-navy" onclick="runSeverity()">⚡ Predict Accident Severity</button>
+      <div class="spinner-wrap" id="spin_severity"><div class="spinner"></div><div class="spinner-text">Calculating severity...</div></div>
+      <div class="card result-card pop" id="res_severity" style="display:none;margin-top:24px">
+        <div class="result-inner">
+          <div class="result-icon-wrap" id="sev_iconWrap"><span id="sev_icon" style="font-size:36px"></span></div>
+          <div style="flex:1;min-width:200px">
+            <div class="result-tag">Predicted Severity</div>
+            <div class="result-label" id="sev_label"></div>
+            <span class="pill" id="sev_badge"></span>
+          </div>
+          <div class="result-score">
+            <div class="result-score-tag">Risk Score</div>
+            <div class="result-score-val"><span id="sev_score" style="font-size:40px;font-weight:900;font-family:'Fraunces',serif"></span><span class="result-score-max">/10</span></div>
+          </div>
+        </div>
+        <div style="margin-top:14px"><div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden"><div id="sev_bar" style="height:100%;border-radius:4px;transition:width .8s ease"></div></div></div>
+        <div class="result-meta" id="sev_meta"></div>
+        <div id="sev_insight" style="display:none;margin-top:14px;padding:12px 14px;background:var(--bg);border-radius:8px;border-left:3px solid var(--navy);font-size:13px;line-height:1.6;color:var(--text-mid)"></div>
+      </div>
+    </div>
+
+    <!-- ─── Panel 2: Fatal ───────────────────────────────────────────────── -->
+    <div id="panel_fatal" class="pred-panel">
+      <button class="btn-navy" onclick="runFatal()">💀 Predict Fatal Risk</button>
+      <div class="spinner-wrap" id="spin_fatal"><div class="spinner"></div><div class="spinner-text">Calculating fatality risk...</div></div>
+      <div class="card result-card pop" id="res_fatal" style="display:none;margin-top:24px">
+        <div class="result-inner">
+          <div class="result-icon-wrap" id="fat_iconWrap"><span id="fat_icon" style="font-size:36px"></span></div>
+          <div style="flex:1;min-width:200px">
+            <div class="result-tag">Fatal Risk Assessment</div>
+            <div class="result-label" id="fat_label"></div>
+            <span class="pill" id="fat_badge"></span>
+          </div>
+          <div class="result-score">
+            <div class="result-score-tag">Risk Score</div>
+            <div class="result-score-val"><span id="fat_score" style="font-size:40px;font-weight:900;font-family:'Fraunces',serif"></span><span class="result-score-max">/10</span></div>
+          </div>
+        </div>
+        <!-- Probability gauge -->
+        <div class="fatal-gauge">
+          <div class="gauge-half">
+            <div class="gauge-num" id="fat_fatal_pct" style="color:#e8392a">—</div>
+            <div class="gauge-lbl">Fatal Probability</div>
+          </div>
+          <div style="width:1px;height:60px;background:var(--border)"></div>
+          <div class="gauge-half">
+            <div class="gauge-num" id="fat_safe_pct" style="color:#0bbf9f">—</div>
+            <div class="gauge-lbl">No Fatality</div>
+          </div>
+        </div>
+        <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px">
+          <div id="fat_bar" style="height:100%;border-radius:4px;background:#e8392a;transition:width .8s ease"></div>
+        </div>
+        <div class="result-meta" id="fat_meta"></div>
+        <div id="fat_insight" style="display:none;margin-top:14px;padding:12px 14px;background:var(--bg);border-radius:8px;border-left:3px solid #e8392a;font-size:13px;line-height:1.6;color:var(--text-mid)"></div>
+      </div>
+    </div>
+
+
+    <!-- Predict All button -->
+    <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
+      <button class="btn-navy" style="background:linear-gradient(135deg,var(--navy),var(--teal));width:100%;justify-content:center" onclick="runAll()">
+        ⚡ Run Both Predictions
+      </button>
+    </div>
+
+    <!-- All Results Section -->
+    <div id="all_results" style="display:none;margin-top:24px">
+      <div style="font-size:13px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px">Full Prediction Report</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px" class="all-results-grid">
+        <!-- Severity mini card -->
+        <div class="card" id="all_sev_card" style="text-align:center;padding:20px 16px">
+          <div style="font-size:28px;margin-bottom:8px" id="all_sev_icon">—</div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Severity</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.4" id="all_sev_label">—</div>
+          <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;margin-top:8px" id="all_sev_score">—</div>
+          <div style="font-size:10px;color:var(--text-light)">Risk Score /10</div>
+        </div>
+        <!-- Fatal mini card -->
+        <div class="card" id="all_fat_card" style="text-align:center;padding:20px 16px">
+          <div style="font-size:28px;margin-bottom:8px" id="all_fat_icon">—</div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Fatal Risk</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);line-height:1.4" id="all_fat_label">—</div>
+          <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:900;margin-top:8px" id="all_fat_prob">—</div>
+          <div style="font-size:10px;color:var(--text-light)">Fatal Probability</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="bottom-bar">
+  <a href="/dashboard"><span class="bb-icon">📊</span>Dashboard</a>
+  <a href="/predict" class="active"><span class="bb-icon">🤖</span>Predict</a>
+  <a href="/data"><span class="bb-icon">🗃️</span>Data</a>
+  <a href="/metrics"><span class="bb-icon">📈</span>Metrics</a>
+  <a href="/about"><span class="bb-icon">ℹ️</span>About</a>
+</div>
+<footer>CrashIntel · Big Data Analytics · PySpark + Flask + Chart.js</footer>
+{% endblock %}
+
+{% block scripts %}
+<style>
+@media(max-width:640px){.all-results-grid{grid-template-columns:1fr!important}}
+.pill-navy{background:#e8f0fe;color:var(--navy);border:1px solid rgba(15,35,84,.2)}
+</style>
+<script>
+const LEVEL = {
+  high:     {color:'#e8392a', bg:'#fff1f0', border:'rgba(232,57,42,0.35)', cls:'pill-coral'},
+  moderate: {color:'#f5a623', bg:'#fffbeb', border:'rgba(245,166,35,0.4)',  cls:'pill-gold'},
+  low:      {color:'#0bbf9f', bg:'#e8faf7', border:'rgba(11,191,159,0.35)', cls:'pill-teal'},
+};
+const CAUSE_COLORS = ['#0f2354','#0bbf9f','#f5a623'];
+
+function getPayload() {
+  return {
+    hour:     document.getElementById('f_hour').value,
+    day:      document.getElementById('f_day').value,
+    month:    document.getElementById('f_month').value,
+    units:    document.getElementById('f_units').value,
+    weather:  document.getElementById('f_weather').value,
+    lighting: document.getElementById('f_lighting').value,
+    traffic:  document.getElementById('f_traffic').value,
+    road:     document.getElementById('f_road').value,
+  };
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.pred-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel_'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── Severity ────────────────────────────────────────────────────────────────
+function runSeverity() {
+  const payload = getPayload();
+  document.getElementById('spin_severity').style.display = 'flex';
+  document.getElementById('res_severity').style.display  = 'none';
+  fetch('/api/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(r=>r.json()).then(data=>{
+      document.getElementById('spin_severity').style.display = 'none';
+      const st = LEVEL[data.level]||LEVEL.low;
+      const iw = document.getElementById('sev_iconWrap');
+      iw.style.background = st.bg; iw.style.border = `2px solid ${st.border}`;
+      document.getElementById('sev_icon').textContent = data.icon;
+      const lbl = document.getElementById('sev_label');
+      lbl.textContent = data.label; lbl.style.color = st.color;
+      const badge = document.getElementById('sev_badge');
+      badge.textContent = data.risk; badge.className = 'pill '+st.cls;
+      document.getElementById('sev_score').textContent = data.score;
+      document.getElementById('sev_score').style.color = st.color;
+      const bar = document.getElementById('sev_bar');
+      bar.style.width = (data.score/10*100)+'%'; bar.style.background = st.color;
+      document.getElementById('res_severity').style.borderColor = st.border;
+      document.getElementById('sev_meta').innerHTML =
+        `<strong style="color:var(--text)">Input:</strong> Hour ${payload.hour}h · ${payload.weather} · ${payload.road} road · ${payload.lighting} · ${payload.units} unit(s)<br>
+         <span class="model-badge">🤖 ${data.model_used}</span>`;
+      if (data.insight) {
+        const ins = document.getElementById('sev_insight');
+        ins.textContent = data.insight;
+        ins.style.borderLeftColor = st.color;
+        ins.style.display = 'block';
+      }
+      document.getElementById('res_severity').style.display = 'block';
+      document.getElementById('res_severity').scrollIntoView({behavior:'smooth',block:'nearest'});
+      return data;
+    }).catch(()=>{ document.getElementById('spin_severity').style.display='none'; });
+}
+
+// ── Fatal ────────────────────────────────────────────────────────────────────
+function runFatal() {
+  const payload = getPayload();
+  document.getElementById('spin_fatal').style.display = 'flex';
+  document.getElementById('res_fatal').style.display  = 'none';
+  return fetch('/api/predict/fatal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(r=>r.json()).then(data=>{
+      document.getElementById('spin_fatal').style.display = 'none';
+      const st = LEVEL[data.level]||LEVEL.low;
+      const iw = document.getElementById('fat_iconWrap');
+      iw.style.background = st.bg; iw.style.border = `2px solid ${st.border}`;
+      document.getElementById('fat_icon').textContent = data.icon;
+      const lbl = document.getElementById('fat_label');
+      lbl.textContent = data.label; lbl.style.color = st.color;
+      const badge = document.getElementById('fat_badge');
+      badge.textContent = data.fatal ? 'HIGH FATAL RISK' : 'LOW FATAL RISK';
+      badge.className = 'pill '+(data.fatal ? 'pill-coral' : 'pill-teal');
+      document.getElementById('fat_score').textContent = data.score;
+      document.getElementById('fat_score').style.color = st.color;
+      document.getElementById('fat_fatal_pct').textContent = data.fatal_prob+'%';
+      document.getElementById('fat_safe_pct').textContent  = data.safe_prob+'%';
+      document.getElementById('fat_bar').style.width = data.fatal_prob+'%';
+      document.getElementById('res_fatal').style.borderColor = st.border;
+      document.getElementById('fat_meta').innerHTML =
+        `<strong style="color:var(--text)">Input:</strong> Hour ${payload.hour}h · ${payload.weather} · ${payload.road} road · ${payload.lighting} · ${payload.units} unit(s)<br>
+         <span class="model-badge">🤖 ${data.model_used}</span>`;
+      if (data.insight) {
+        const ins = document.getElementById('fat_insight');
+        ins.textContent = data.insight;
+        ins.style.borderLeftColor = st.color;
+        ins.style.display = 'block';
+      }
+      document.getElementById('res_fatal').style.display = 'block';
+      document.getElementById('res_fatal').scrollIntoView({behavior:'smooth',block:'nearest'});
+      return data;
+    }).catch(()=>{ document.getElementById('spin_fatal').style.display='none'; });
+}
+
+// ── Run All ──────────────────────────────────────────────────────────────────
+function runAll() {
+  document.getElementById('all_results').style.display = 'none';
+  const payload = getPayload();
+  Promise.all([
+    fetch('/api/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(r=>r.json()),
+    fetch('/api/predict/fatal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(r=>r.json()),
+  ]).then(function([sev, fat]) {
+    const ss = LEVEL[sev.level]||LEVEL.low;
+    const fs = LEVEL[fat.level]||LEVEL.low;
+
+    document.getElementById('all_sev_icon').textContent   = sev.icon;
+    document.getElementById('all_sev_label').textContent  = sev.label;
+    document.getElementById('all_sev_label').style.color  = ss.color;
+    document.getElementById('all_sev_score').textContent  = sev.score+'/10';
+    document.getElementById('all_sev_score').style.color  = ss.color;
+    document.getElementById('all_sev_card').style.borderTop = '4px solid '+ss.color;
+
+    document.getElementById('all_fat_icon').textContent  = fat.icon;
+    document.getElementById('all_fat_label').textContent = fat.label;
+    document.getElementById('all_fat_label').style.color = fs.color;
+    document.getElementById('all_fat_prob').textContent  = fat.fatal_prob+'%';
+    document.getElementById('all_fat_prob').style.color  = fs.color;
+    document.getElementById('all_fat_card').style.borderTop = '4px solid '+fs.color;
+
+    document.getElementById('all_results').style.display = 'block';
+    document.getElementById('all_results').scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,489 @@
+================================================================
+ROAD SAFETY RULES AND GUIDELINES
+Training Content for CrashIntel Road Safety Assistant
+================================================================
+
+================================================================
+SECTION 1 — GENERAL DRIVING RULES
+================================================================
+
+SPEED LIMITS (India — Motor Vehicles Act):
+- Residential areas and school zones: 25 km/h maximum
+- Urban roads and city limits: 50 km/h maximum
+- State highways: 100 km/h for cars
+- National highways: 120 km/h for cars
+- Near schools, hospitals, markets: 25 km/h
+- Expressways: 120 km/h for cars, 100 km/h for SUVs
+- Heavy vehicles (trucks, buses): 80 km/h on highways
+- Two-wheelers: 60 km/h on highways
+
+Speeding facts:
+- A pedestrian hit at 30 km/h has 90% survival chance
+- A pedestrian hit at 50 km/h has only 50% survival chance
+- A pedestrian hit at 80 km/h has less than 10% survival chance
+- Every 1% increase in average speed produces a 4% increase in fatal crashes
+- Speeding is a factor in 30% of all road fatalities in India
+
+SEAT BELT RULES:
+- Mandatory for driver and all passengers in India
+- Fine of Rs. 1,000 for not wearing seat belt
+- Seat belts reduce fatal injury risk by 45% for front seat occupants
+- Seat belts reduce fatal injury risk by 60% for rear seat occupants
+- Never tuck the shoulder belt behind your back
+- Pregnant women must wear seat belts — below the belly, not across it
+- Children under 12 must sit in the rear seat with seat belts
+
+HELMET RULES (Two-Wheeler):
+- Mandatory for rider and pillion passenger
+- Helmet must be ISI marked (Bureau of Indian Standards)
+- Fine of Rs. 1,000 for not wearing helmet
+- Helmet must have chin strap fastened
+- Helmets reduce risk of fatal head injury by 42%
+- Helmets reduce risk of head injury by 69%
+- Replace helmet every 5 years or after any impact
+
+MOBILE PHONE RULES:
+- Strictly prohibited to use handheld mobile while driving
+- Fine of Rs. 5,000 for using mobile while driving
+- Even hands-free calls increase reaction time by 40%
+- Texting while driving increases crash risk by 23 times
+- Looking at a phone for 5 seconds at 60 km/h means traveling
+  83 meters completely blind
+- Voice-activated systems are safer but still cause distraction
+
+DRUNK DRIVING RULES:
+- Legal Blood Alcohol Concentration (BAC) limit: 0.03% in India
+  (30 mg of alcohol per 100 ml of blood)
+- First offense fine: Rs. 10,000 and/or 6 months imprisonment
+- Second offense: Rs. 15,000 and/or 2 years imprisonment
+- Alcohol impairs judgment, coordination, and reaction time
+- Even one drink increases accident risk by 1.5 times
+- At 0.08% BAC the crash risk is 4 times higher
+- Alcohol is involved in approximately 70% of night-time fatal crashes
+
+DROWSY DRIVING:
+- Being awake for 18 hours is equivalent to BAC of 0.05%
+- Being awake for 24 hours equals BAC of 0.10%
+- Drowsy driving causes 20% of all road accidents
+- Most drowsy driving accidents occur between 2 AM and 6 AM
+- Warning signs: yawning frequently, drifting lanes, missing exits
+- If drowsy — pull over safely and rest for 20 minutes
+- Avoid driving between midnight and 6 AM when possible
+
+================================================================
+SECTION 2 — WEATHER AND ROAD CONDITION RULES
+================================================================
+
+DRIVING IN RAIN:
+- Reduce speed by at least 30% in rain
+- Turn on headlights even in daytime rain
+- Increase following distance from 3 seconds to 6 seconds
+- Avoid sudden braking — apply brakes gently
+- Watch for hydroplaning — when tyres lose contact with road
+  due to water layer (typically at speeds above 80 km/h)
+- If hydroplaning occurs: ease off accelerator, do not brake hard
+- Keep windshield wipers in good condition
+- Check tyre tread depth — minimum 1.6 mm is legal minimum
+- Heavy rain reduces visibility to less than 100 meters — slow down
+- Never drive through flooded roads — 15 cm of water can stall vehicles
+  30 cm of water can carry away a small car
+
+DRIVING IN FOG:
+- Use low-beam headlights — never high beam in fog (reflects back)
+- Use rear fog lights if available
+- Reduce speed significantly — visibility can drop to under 10 meters
+- Do not overtake in fog
+- Use road markings and edge lines as guides
+- If visibility below 50 meters, pull over safely and wait
+- Leave maximum following distance
+- Fog accidents have among the highest fatality rates of any weather
+
+DRIVING ON WET ROADS:
+- Wet roads increase stopping distance by up to 2 times
+- At 60 km/h on wet roads stopping distance is about 73 meters
+  compared to 40 meters on dry roads
+- Reduce speed by 20 to 30% on wet roads
+- Avoid sudden steering inputs
+- Check tyre pressure regularly — under-inflated tyres worsen
+  wet road performance
+
+DRIVING IN COLD / ICY CONDITIONS:
+- Ice is most dangerous between 0°C and -5°C (black ice forms)
+- Reduce speed by 50% or more on icy roads
+- Stopping distance on ice can be 10 times longer than dry roads
+- Accelerate and brake very gently
+- If skidding — steer in direction of skid, do not brake hard
+- Keep windshield clear of ice before driving
+- Use winter tyres if available in cold regions
+
+DRIVING AT NIGHT:
+- Night driving accounts for 40% of all fatal accidents despite
+  less traffic than daytime
+- Use headlights from sunset to sunrise mandatory in India
+- Dim high beams when within 200 meters of oncoming vehicle
+- Reduce speed — your headlights cover only about 60 meters
+  at low beam
+- Be extra alert for pedestrians, cyclists, and animals on road
+- Fatigue is more common at night — take regular breaks
+- Dark roads with no street lighting significantly increase
+  accident severity as shown in the CrashIntel dataset
+
+================================================================
+SECTION 3 — TRAFFIC RULES AND SIGNALS
+================================================================
+
+TRAFFIC SIGNALS:
+- Red light: Complete stop behind stop line
+- Yellow/Amber: Prepare to stop — do not accelerate through
+- Green: Proceed with caution — check for crossing traffic
+- Flashing red: Treat as stop sign
+- Flashing yellow: Proceed with caution, yield if needed
+- Running a red light fine in India: Rs. 1,000 to Rs. 5,000
+- Red light violations cause 20% of all urban intersection accidents
+
+ROAD SIGNS — MANDATORY SIGNS (Red circle):
+- Speed limit signs: Must not exceed shown speed
+- No entry: No vehicles allowed
+- No overtaking: Do not pass other vehicles
+- No parking: Cannot stop vehicle here
+- One way: Traffic moves in one direction only
+- Stop: Complete stop mandatory
+
+ROAD SIGNS — WARNING SIGNS (Yellow triangle or diamond):
+- Sharp curve ahead: Reduce speed significantly
+- School ahead: Reduce to 25 km/h, watch for children
+- Narrow road ahead: Prepare for reduced width
+- Slippery road: Reduce speed, avoid sudden maneuvers
+- Pedestrian crossing ahead: Be prepared to stop
+- Animal crossing: Watch for livestock or wild animals
+
+LANE DISCIPLINE:
+- Keep left except when overtaking
+- Never straddle lane markings
+- Use turn signals before changing lanes
+- Check mirrors and blind spots before lane change
+- Do not weave between lanes
+- Buses and heavy vehicles must use left lane always
+- Emergency vehicles must always have clear path — pull left
+
+OVERTAKING RULES:
+- Only overtake from the right side
+- Never overtake on curves, hills, intersections, or pedestrian crossings
+- Ensure road ahead is clear for sufficient distance
+- Use indicator before and during overtaking
+- Return to left lane after overtaking
+- Never overtake a vehicle that has stopped at a crossing
+- Sound horn before overtaking on rural roads
+
+INTERSECTION RULES:
+- Yield to vehicles already in the intersection
+- At unmarked intersections — yield to vehicle on right
+- Always check all directions before proceeding
+- Reduce speed when approaching any intersection
+- Intersections with no traffic control are the most dangerous
+  as shown in CrashIntel data (traffic_control_device = None)
+
+================================================================
+SECTION 4 — PEDESTRIAN AND CYCLIST SAFETY
+================================================================
+
+PEDESTRIAN RULES:
+- Walk on footpath — if no footpath use right side of road
+  facing oncoming traffic
+- Cross only at designated pedestrian crossings
+- Use zebra crossings and foot overbridges where available
+- Make eye contact with drivers before crossing
+- Do not assume a vehicle will stop
+- At night wear reflective clothing or carry a torch
+- Never cross between parked vehicles
+- Look right, left, right again before crossing
+- Pedestrians account for 15% of all road fatalities in India
+
+CYCLIST RULES:
+- Ride in the leftmost lane or dedicated cycle track
+- Always use hand signals for turning
+- Wear a helmet — reduces head injury risk by 85%
+- Use front white light and rear red reflector at night
+- Never ride on expressways or highways
+- Maintain single file when riding in groups
+- Do not use mobile phones while cycling
+- Check brakes before every ride
+- Be especially alert at intersections and driveways
+
+PROTECTING VULNERABLE ROAD USERS:
+- Motorcyclists, cyclists, and pedestrians are most at risk
+- Give extra space when overtaking cyclists — minimum 1.5 meters
+- Slow down near school zones, markets, and bus stops
+- Watch for pedestrians stepping out from between parked vehicles
+- In residential areas treat every road as a potential crossing point
+
+================================================================
+SECTION 5 — VEHICLE SAFETY AND MAINTENANCE
+================================================================
+
+TYRE SAFETY:
+- Check tyre pressure monthly and before long trips
+- Under-inflation increases fuel consumption and blowout risk
+- Over-inflation reduces grip and increases blowout risk
+- Minimum legal tread depth: 1.6 mm (replace before this)
+- Check for cuts, bulges, or embedded objects regularly
+- Rotate tyres every 8,000 to 10,000 km
+- Wheel alignment check every 10,000 km
+- Bald tyres increase stopping distance by up to 50% in wet conditions
+
+BRAKE SAFETY:
+- Test brakes in a safe area if they feel different
+- Squealing brakes indicate worn brake pads — replace immediately
+- Pulling to one side when braking indicates brake problem
+- Brake fluid should be changed every 2 years
+- Never rest foot on brake pedal while driving (brake fade)
+- ABS (Anti-lock Braking System) prevents wheel lock — let it work
+  do not pump brakes with ABS, apply steady firm pressure
+
+HEADLIGHT AND VISIBILITY:
+- Check headlights, tail lights, indicators every month
+- Replace bulbs immediately when they fail
+- Clean headlight lenses — foggy lenses reduce light output by 80%
+- Adjust headlights after suspension repairs or heavy loads
+- Keep windshield clean inside and out — dirt reduces night vision
+
+VEHICLE CHECKS BEFORE A JOURNEY:
+- Check tyre pressure and condition
+- Check all lights are working
+- Check fuel level
+- Check windshield washer fluid
+- Adjust mirrors and seat position
+- Check brakes feel firm
+- Remove ice or condensation from all windows
+
+================================================================
+SECTION 6 — EMERGENCY SITUATIONS
+================================================================
+
+IF YOU HAVE AN ACCIDENT:
+1. Stay calm — switch on hazard lights immediately
+2. Move vehicle to safe position if possible and not seriously damaged
+3. Check for injuries — call 108 (ambulance) if anyone is hurt
+4. Call 100 (police) for serious accidents
+5. Do not move seriously injured persons unless there is fire risk
+6. Set up warning triangle 50 meters behind vehicle
+7. Exchange details with other driver — name, vehicle number, insurance
+8. Take photographs of accident scene, damage, and positions
+9. Get witness contact details if available
+10. Report accident to insurance company within 24 hours
+
+EMERGENCY NUMBERS IN INDIA:
+- Police: 100
+- Ambulance: 108
+- Fire: 101
+- National Emergency: 112
+- Road accident helpline: 1073
+- Highway patrol: 1033
+
+VEHICLE FIRE:
+- Pull over immediately and switch off engine
+- Get all occupants out quickly
+- Move at least 50 meters away from vehicle
+- Call 101 (fire) and 112
+- Never attempt to retrieve belongings
+- Do not open bonnet if fire is suspected underneath
+
+TYRE BLOWOUT AT SPEED:
+- Do not brake suddenly
+- Grip steering wheel firmly with both hands
+- Gently ease off accelerator
+- Steer straight — let vehicle slow naturally
+- Once speed is reduced, gently brake and pull over
+- Switch on hazard lights
+
+VEHICLE IN WATER:
+- Unbuckle seatbelt immediately
+- Open or break window — do not open door until water enters vehicle
+- Wait for pressure to equalize then open door
+- Swim to surface
+- Keep a window breaker tool in the vehicle
+
+================================================================
+SECTION 7 — ROAD SAFETY STATISTICS — INDIA
+================================================================
+
+NATIONAL STATISTICS:
+- India accounts for 11% of global road accident deaths
+- Over 150,000 people die in road accidents annually in India
+- More than 450,000 road accidents are reported every year
+- India has one of the highest road fatality rates in the world
+- Road accidents cost India approximately 3.14% of GDP annually
+- Two-wheelers account for 44% of all road accident deaths
+- Pedestrians account for 15% of fatalities
+- Young adults aged 18 to 45 account for over 67% of deaths
+- Majority of accidents (70%) occur on national and state highways
+
+TOP CAUSES OF ROAD ACCIDENTS IN INDIA:
+1. Overspeeding — 64.4% of accidents
+2. Driving on wrong side — 4.7% of accidents
+3. Jumping red lights — 1.7% of accidents
+4. Use of mobile phone — growing contributor
+5. Drunk driving — significant in night accidents
+6. Poor road conditions — potholes, lack of markings
+7. Lack of street lighting — major factor in night severity
+8. Driver fatigue — especially long-distance truck drivers
+9. Lack of helmet or seat belt use
+10. Non-compliance with traffic rules
+
+HIGH-RISK GROUPS:
+- Young male drivers (18 to 25 years) — highest accident involvement
+- Truck and bus drivers — long hours, fatigue risk
+- Two-wheeler riders — most vulnerable on roads
+- Pedestrians in urban areas — especially elderly and children
+- Night-shift workers — fatigue and low visibility combination
+
+GOVERNMENT INITIATIVES:
+- Road Safety Policy 2011 — national framework for reducing deaths
+- Vision Zero India — target to eliminate road fatalities
+- Mandatory ABS for two-wheelers above 125cc from 2019
+- Airbag mandate for all passenger vehicles
+- Speed governors mandatory for commercial vehicles
+- Reflective tape mandatory for heavy vehicles
+- FASTAG electronic toll system to reduce congestion
+- Motor Vehicles Amendment Act 2019 — significantly increased fines
+- iRAD (Integrated Road Accident Database) — national accident tracking
+
+================================================================
+SECTION 8 — SAFE DRIVING HABITS AND TIPS
+================================================================
+
+DEFENSIVE DRIVING PRINCIPLES:
+1. Expect the unexpected — assume other drivers may make mistakes
+2. Maintain safe following distance — 3 second rule minimum
+   (double in rain, triple at night)
+3. Scan the road ahead — look 12 seconds ahead at highway speeds
+4. Check mirrors every 5 to 8 seconds
+5. Be aware of all vehicles around you at all times
+6. Have an escape route in mind at all times
+7. Communicate clearly — use indicators, horn appropriately
+8. Never drive when angry, upset, or distracted
+9. Adjust driving for conditions — speed limits are for ideal conditions
+10. Yield rather than insist on right of way — safety over pride
+
+THE 3 SECOND RULE:
+- Pick a fixed point ahead (sign, tree, overpass)
+- When vehicle in front passes it, count "one thousand one,
+  one thousand two, one thousand three"
+- Your vehicle should not reach that point before you finish counting
+- If it does, increase your following distance
+- In rain: use 6 second rule
+- At night: use 6 second rule
+- Carrying heavy load: use 6 second rule
+- Towing: use 8 second rule
+
+LONG DISTANCE DRIVING TIPS:
+- Rest for 15 minutes every 2 hours
+- Do not drive for more than 8 to 10 hours per day
+- Avoid driving between midnight and 6 AM
+- Stay hydrated — dehydration increases fatigue
+- Avoid heavy meals before driving — causes drowsiness
+- Share driving with another qualified driver when possible
+- Plan rest stops before starting journey
+- Inform someone of your route and expected arrival time
+
+CHILDREN IN VEHICLES:
+- Children under 4 years must use approved child safety seat
+- Children 4 to 8 years must use booster seat
+- Children under 12 must sit in rear seat
+- Never place rear-facing child seat in front passenger seat
+  with active airbag
+- Never leave children alone in vehicle — temperatures can rise
+  dangerously fast
+
+ROAD RAGE PREVENTION:
+- Do not react to aggressive drivers
+- Avoid eye contact with aggressive drivers
+- Do not make gestures
+- Maintain distance from erratic drivers
+- If followed by aggressive driver — drive to police station
+  or public place, do not go home
+- Allow extra time for journey — being in a hurry causes aggression
+- Remember every driver makes mistakes — be patient
+
+================================================================
+SECTION 9 — ROAD TYPES AND SPECIFIC HAZARDS
+================================================================
+
+NATIONAL HIGHWAYS:
+- High speed environment — maximum alertness required
+- Maintain lane discipline strictly
+- Use service roads for local access where provided
+- Be alert for slow vehicles like tractors, bullock carts
+- Watch for animals and pedestrians crossing at night
+- Median crossings are extremely dangerous — never attempt illegal U-turn
+- Rest stops every 2 hours on long highway journeys
+
+URBAN ROADS:
+- Constant hazard scanning needed — pedestrians, cyclists, auto-rickshaws
+- Speed breakers and potholes are common — watch road surface
+- Watch for vehicles emerging from lanes and driveways
+- Be prepared for sudden stops by buses at bus stops
+- Left turn on red is allowed in India only where sign permits
+- Night driving in unlit urban areas requires extra caution
+
+RURAL ROADS:
+- Narrow roads often have no shoulders
+- Animals on road are common hazard especially at night
+- Road surface quality is variable
+- Oncoming vehicles may not dim headlights — be prepared
+- Overloaded trucks are common — give extra space
+- Unmarked speed breakers are common
+- Limited medical facilities in case of accident — drive with extra care
+
+MOUNTAIN AND HILLY ROADS:
+- Use low gear going downhill — do not ride brakes continuously
+- At blind corners use horn to warn oncoming traffic
+- Vehicle going uphill has right of way
+- Check brakes before descending long hills
+- Watch for falling rocks and landslide areas
+- Pull over safely to allow faster vehicles to pass
+- Keep left at all times on narrow mountain roads
+
+================================================================
+SECTION 10 — ROAD SAFETY FOR SPECIFIC VEHICLES
+================================================================
+
+TWO-WHEELER SAFETY:
+- Always wear ISI certified helmet with chin strap fastened
+- Wear full protective gear — jacket, gloves, boots
+- Do not carry more than one pillion rider
+- Check tyre pressure daily — two-wheelers are sensitive to pressure
+- Ride in the left portion of the lane
+- Be visible — wear bright or reflective clothing
+- Motorcycles are in the blind spot of large vehicles — avoid riding there
+- Never filter between moving vehicles at speed
+- Wet roads are extremely dangerous for two-wheelers — slow down significantly
+
+BUS AND TRUCK SAFETY (for other drivers):
+- Large vehicles have significant blind spots — four zones
+  directly in front, directly behind, and on both sides
+  If you cannot see the truck mirrors, the driver cannot see you
+- Never cut in front of a truck or bus — their stopping distance
+  is much longer than a car
+- Give trucks extra space when they are turning — they need wide radius
+- Watch for trucks drifting left before a right turn
+- Trucks can blow out tyres — maintain safe following distance
+- Never overtake a bus that is stopped at a bus stop — pedestrians
+  may cross from in front of the bus
+
+AUTO-RICKSHAW AND TAXI SAFETY:
+- They can stop suddenly without warning at any point
+- Maintain extra following distance behind autos
+- They frequently change lanes without indicating
+- Watch for passengers getting in and out — they open doors into traffic
+
+================================================================
+END OF DOCUMENT
+================================================================
+This document is training content for the CrashIntel Road Safety
+Assistant chatbot. All statistics are based on Indian road safety
+data and Motor Vehicles Act regulations.
+CrashIntel — Big Data Analytics Project
+Information Technology Department
+Kumaraguru College of Technology
+================================================================

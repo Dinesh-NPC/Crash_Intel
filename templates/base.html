@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" style="background:var(--bg)">
+<head>
+  <meta charset="UTF-8"/>
+  <!-- Inline theme script: runs before page paints — eliminates dark mode flash -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}CrashIntel{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+<script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="C179SBu9D6G89_526C9u1";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <div class="logo-icon">🚦</div>
+      <span>Crash<span class="logo-accent">Intel</span></span>
+    </a>
+
+    <div class="nav-tabs" id="navTabs">
+      {% block nav_tabs %}{% endblock %}
+    </div>
+
+    <div class="nav-right">
+      <button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle dark mode">
+        <span id="darkIcon">🌙</span>
+      </button>
+      {% block nav_cta %}
+      <a href="/dashboard" class="btn-primary btn-sm">Launch App →</a>
+      {% endblock %}
+    </div>
+
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu">
+    {% block mobile_menu %}
+    <a href="/dashboard" class="mobile-link">📊 Dashboard</a>
+    <a href="/predict"   class="mobile-link">🤖 Predict</a>
+    <a href="/data"      class="mobile-link">🗃️ Data</a>
+    <a href="/metrics"   class="mobile-link">📈 Metrics</a>
+    <a href="/about"     class="mobile-link">ℹ️ About</a>
+    {% endblock %}
+  </div>
+</nav>
+
+{% block content %}{% endblock %}
+{% block mobile_tabs %}{% endblock %}
+
+<script src="/static/js/main.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

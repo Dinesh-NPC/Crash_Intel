@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}About — CrashIntel{% endblock %}
+{% block nav_tabs %}
+<a href="/dashboard" class="tab-btn">📊 Dashboard</a>
+<a href="/predict"   class="tab-btn">🤖 Predict</a>
+<a href="/data"      class="tab-btn">🗃️ Data</a>
+<a href="/metrics"   class="tab-btn">📈 Metrics</a>
+<a href="/about"     class="tab-btn active">ℹ️ About</a>
+{% endblock %}
+{% block nav_cta %}<a href="/" class="btn-outline btn-sm">← Home</a>{% endblock %}
+{% block mobile_menu %}
+<a href="/dashboard" class="mobile-link">📊 Dashboard</a>
+<a href="/predict"   class="mobile-link">🤖 Predict</a>
+<a href="/data"      class="mobile-link">🗃️ Data</a>
+<a href="/metrics"   class="mobile-link">📈 Metrics</a>
+<a href="/about"     class="mobile-link active">ℹ️ About</a>
+{% endblock %}
+
+{% block content %}
+<main class="app-main" style="max-width:960px;margin:0 auto">
+
+  <!-- Page header -->
+  <div class="sr" style="text-align:center;padding:32px 0 40px">
+    <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,var(--coral),#ff6b5b);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px" class="float">🚦</div>
+    <h1 style="font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--text);margin-bottom:10px">About CrashIntel</h1>
+    <p style="font-size:15px;color:var(--text-mid);max-width:560px;margin:0 auto;line-height:1.75">A Big Data Analytics platform that processes road accident data using Apache PySpark, visualizes crash patterns and predicts accident severity using machine learning.</p>
+  </div>
+
+  <!-- Team -->
+  <div class="section-label sr">👨‍💻 Our Team</div>
+  <div style="background:linear-gradient(135deg,var(--navy),#1a3a80);border-radius:20px;padding:32px;margin-bottom:24px" class="sr">
+    <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:20px;text-transform:uppercase;letter-spacing:.08em">Information Technology · Kumaraguru College of Technology</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      {% for name, reg, icon in [
+        ('Dinesh Kumar T','23BIT023','👨‍💻'),
+        ('Indira S','23BIT033','👩‍💻'),
+        ('Jasir Ahamed M','23BIT035','👨‍💻'),
+        ('Kaviya Sree RS','23BIT042','👩‍💻')
+      ] %}
+      <div style="background:rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px">
+        <div style="width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">{{ icon }}</div>
+        <div>
+          <div style="font-weight:700;font-size:14px;color:white">{{ name }}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:2px;font-family:'Plus Jakarta Sans',monospace">{{ reg }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Project info + Tech stack side by side -->
+  <div class="chart-grid-2" style="margin-bottom:24px">
+    <div class="card sr-left">
+      <div class="card-title" style="margin-bottom:14px">📌 Project Information</div>
+      {% for label, value in [
+        ('Dataset','traffic_accidents.csv'),
+        ('Algorithm','Logistic Regression'),
+        ('Big Data Tool','Apache PySpark 3.3.2'),
+        ('Web Framework','Flask (Python)'),
+        ('Training','Google Colab')
+      ] %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text-light);font-weight:600">{{ label }}</span>
+        <span style="color:var(--text);font-weight:700">{{ value }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="card sr-right">
+      <div class="card-title" style="margin-bottom:14px">🛠️ Tech Stack</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        {% for icon, name, desc, color in [
+          ('⚡','Apache PySpark','Distributed data processing','#e8392a'),
+          ('🐍','Flask','Python web framework','#0f2354'),
+          ('📊','Chart.js 4','Interactive visualizations','#0bbf9f'),
+          ('🤖','scikit-learn','Logistic Regression ML','#f5a623'),
+          ('🐼','Pandas','Data manipulation','#7c3aed'),
+          ('☕','Java 8','PySpark JVM runtime','#0bbf9f')
+        ] %}
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:var(--bg);border-radius:10px;border-left:3px solid {{ color }}">
+          <span style="font-size:16px;flex-shrink:0">{{ icon }}</span>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--text)">{{ name }}</div>
+            <div style="font-size:11px;color:var(--text-light)">{{ desc }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="section-label sr">✨ Platform Features</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+    {% for icon, title, desc, color in [
+      ('📊','Interactive Dashboard','7 Chart.js visualizations with month/day filters and PDF export.','#0f2354'),
+      ('⚡','PySpark Analytics','Full groupBy pipeline mirrors Google Colab notebook analysis.','#e8392a'),
+      ('🤖','ML Severity Predictor','Logistic Regression model predicts accident severity from 8 factors.','#0bbf9f'),
+      ('📈','Model Metrics','Real accuracy, precision, recall and F1-score from Colab training.','#f5a623'),
+      ('🗃️','Data Explorer','Browse, search, sort, filter and export 500 accident records.','#7c3aed'),
+      ('💬','ARIA AI Assistant','Chatbot trained on dataset and Indian road safety rules.','#0f2354'),
+      ('🌙','Dark Mode','Persistent dark/light theme with no flash on page switch.','#e8392a'),
+      ('📱','Fully Responsive','Works on mobile, tablet and desktop.','#0bbf9f')
+    ] %}
+    <div class="sr" style="display:flex;align-items:flex-start;gap:14px;padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--card-bg);transition:box-shadow .2s,transform .2s" onmouseover="this.style.boxShadow='var(--shadow-lg)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
+      <div style="width:40px;height:40px;border-radius:10px;background:{{ color }};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;opacity:.9">{{ icon }}</div>
+      <div>
+        <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px">{{ title }}</div>
+        <div style="font-size:12px;color:var(--text-light);line-height:1.5">{{ desc }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Quick links -->
+  <div class="card sr" style="text-align:center;padding:28px">
+    <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--text);margin-bottom:6px">Explore the Platform</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:20px">Navigate to any section of CrashIntel</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a href="/dashboard" class="btn-primary btn-sm">📊 Dashboard</a>
+      <a href="/predict"   class="btn-outline btn-sm">🤖 Predictor</a>
+      <a href="/data"      class="btn-outline btn-sm">🗃️ Data</a>
+      <a href="/metrics"   class="btn-outline btn-sm">📈 Metrics</a>
+    </div>
+  </div>
+
+</main>
+
+<div class="bottom-bar">
+  <a href="/dashboard"><span class="bb-icon">📊</span>Dashboard</a>
+  <a href="/predict"><span class="bb-icon">🤖</span>Predict</a>
+  <a href="/data"><span class="bb-icon">🗃️</span>Data</a>
+  <a href="/metrics"><span class="bb-icon">📈</span>Metrics</a>
+  <a href="/about" class="active"><span class="bb-icon">ℹ️</span>About</a>
+</div>
+<footer>CrashIntel · Big Data Analytics · PySpark + Flask + Chart.js</footer>
+{% endblock %}

@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+{% block title %}Data Explorer — CrashIntel{% endblock %}
+{% block nav_tabs %}
+<a href="/dashboard" class="tab-btn">📊 Dashboard</a>
+<a href="/predict"   class="tab-btn">🤖 Predict</a>
+<a href="/data"      class="tab-btn active">🗃️ Data</a>
+<a href="/metrics"   class="tab-btn">📈 Metrics</a>
+<a href="/about"     class="tab-btn">ℹ️ About</a>
+{% endblock %}
+{% block nav_cta %}<a href="/" class="btn-outline btn-sm">← Home</a>{% endblock %}
+{% block mobile_menu %}
+<a href="/dashboard" class="mobile-link">📊 Dashboard</a>
+<a href="/predict"   class="mobile-link">🤖 Predict</a>
+<a href="/data"      class="mobile-link active">🗃️ Data</a>
+<a href="/metrics"   class="mobile-link">📈 Metrics</a>
+<a href="/about"     class="mobile-link">ℹ️ About</a>
+{% endblock %}
+
+{% block content %}
+<main class="app-main">
+
+  <!-- Header -->
+  <div style="margin-bottom:24px">
+    <h2 style="font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--text);margin-bottom:8px">🗃️ Data Explorer</h2>
+    <p style="color:var(--text-mid);font-size:14px">Browse, search, sort and filter the accident dataset processed by Apache PySpark. Use ARIA chatbot to ask questions about the data.</p>
+  </div>
+
+  <!-- Controls bar -->
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <!-- Search -->
+      <div style="flex:1;min-width:200px;position:relative">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:14px">🔍</span>
+        <input id="searchInput" type="text" placeholder="Search any column..."
+          oninput="applyFilters()"
+          style="width:100%;padding:10px 14px 10px 36px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;background:var(--input-bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;outline:none"/>
+      </div>
+      <!-- Column filter -->
+      <div>
+        <select id="colFilter" onchange="applyFilters()"
+          style="padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;color:var(--text);background:var(--input-bg);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none">
+          <option value="all">All Columns</option>
+        </select>
+      </div>
+      <!-- Severity filter -->
+      <div>
+        <select id="severityFilter" onchange="applyFilters()"
+          style="padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;color:var(--text);background:var(--input-bg);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none">
+          <option value="all">All Severities</option>
+        </select>
+      </div>
+      <!-- Hour filter -->
+      <div>
+        <select id="hourFilter" onchange="applyFilters()"
+          style="padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;color:var(--text);background:var(--input-bg);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;outline:none">
+          <option value="all">All Hours</option>
+          <option value="night">Night (10PM–5AM)</option>
+          <option value="morning">Morning Rush (6–9AM)</option>
+          <option value="afternoon">Afternoon (10AM–3PM)</option>
+          <option value="evening">Evening Rush (4–8PM)</option>
+        </select>
+      </div>
+      <!-- Reset -->
+      <button onclick="resetFilters()"
+        style="padding:10px 16px;border-radius:10px;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text-mid);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+        ✕ Reset
+      </button>
+      <!-- Export CSV -->
+      <button onclick="exportCSV()"
+        style="padding:10px 16px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--teal),#09a88e);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+        ⬇️ Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <div class="card" style="flex:1;min-width:120px;padding:14px 18px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--navy)" id="totalRows">—</div>
+      <div style="font-size:11px;color:var(--text-light);margin-top:2px;font-weight:600">Total Records</div>
+    </div>
+    <div class="card" style="flex:1;min-width:120px;padding:14px 18px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--coral)" id="filteredRows">—</div>
+      <div style="font-size:11px;color:var(--text-light);margin-top:2px;font-weight:600">Showing</div>
+    </div>
+    <div class="card" style="flex:1;min-width:120px;padding:14px 18px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--teal)" id="totalCols">—</div>
+      <div style="font-size:11px;color:var(--text-light);margin-top:2px;font-weight:600">Columns</div>
+    </div>
+    <div class="card" style="flex:1;min-width:120px;padding:14px 18px;text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--gold)" id="pageInfo">—</div>
+      <div style="font-size:11px;color:var(--text-light);margin-top:2px;font-weight:600">Page</div>
+    </div>
+  </div>
+
+  <!-- Table card -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <!-- Loading -->
+    <div id="tableLoading" style="text-align:center;padding:60px 32px">
+      <div style="width:44px;height:44px;border-radius:50%;border:4px solid var(--border);border-top-color:var(--coral);animation:spin .8s linear infinite;margin:0 auto 16px"></div>
+      <div style="font-size:14px;color:var(--text-light)">Loading dataset from PySpark...</div>
+    </div>
+
+    <!-- Table -->
+    <div id="tableWrap" style="display:none;overflow-x:auto"></div>
+
+    <!-- Pagination -->
+    <div id="pagination" style="display:none;padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div style="font-size:13px;color:var(--text-mid)" id="pageText"></div>
+      <div style="display:flex;gap:8px" id="pageButtons"></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="bottom-bar">
+  <a href="/dashboard"><span class="bb-icon">📊</span>Dashboard</a>
+  <a href="/predict"><span class="bb-icon">🤖</span>Predict</a>
+  <a href="/data" class="active"><span class="bb-icon">🗃️</span>Data</a>
+  <a href="/metrics"><span class="bb-icon">📈</span>Metrics</a>
+  <a href="/about"><span class="bb-icon">ℹ️</span>About</a>
+</div>
+<footer>CrashIntel · Big Data Analytics · PySpark + Flask + Chart.js</footer>
+{% endblock %}
+
+{% block scripts %}
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+#tableWrap table{width:100%;border-collapse:collapse;font-size:12px}
+#tableWrap th{background:var(--navy);color:white;padding:11px 14px;text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;position:sticky;top:0;cursor:pointer;user-select:none}
+#tableWrap th:hover{background:var(--navy-light)}
+#tableWrap th .sort-icon{margin-left:4px;opacity:.5}
+#tableWrap th.sort-asc .sort-icon::after{content:'↑';opacity:1}
+#tableWrap th.sort-desc .sort-icon::after{content:'↓';opacity:1}
+#tableWrap td{padding:9px 14px;border-bottom:1px solid var(--border);color:var(--text-mid);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+#tableWrap tr:hover td{background:var(--navy-soft)}
+.severity-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em}
+.page-btn{padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text-mid);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.page-btn:hover{border-color:var(--coral);color:var(--coral)}
+.page-btn.active{background:var(--coral);color:white;border-color:var(--coral)}
+.page-btn:disabled{opacity:.4;cursor:not-allowed}
+</style>
+<script>
+var allData         = [];
+var filteredData    = [];
+var currentPage     = 1;
+var rowsPerPage     = 10;
+var sortCol         = null;
+var sortDir         = 'asc';
+var columns         = [];
+var dataFullyLoaded = false;
+
+// Severity color map
+function severityColor(val) {
+  if (!val) return '';
+  var v = val.toUpperCase();
+  if (v.includes('FATAL'))          return 'background:rgba(232,57,42,.15);color:#e8392a';
+  if (v.includes('INCAPACITAT'))    return 'background:rgba(245,166,35,.15);color:#c07800';
+  if (v.includes('NONINCAPACITAT')) return 'background:rgba(11,191,159,.15);color:#0bbf9f';
+  if (v.includes('REPORTED'))       return 'background:rgba(15,35,84,.10);color:#0f2354';
+  if (v.includes('NO INDICATION'))  return 'background:rgba(139,152,170,.15);color:#5a6270';
+  return '';
+}
+
+var totalServerRows = 0;
+var serverPage      = 1;
+var serverPerPage   = 200;
+
+// Load first page quickly, then load all in background
+function loadPage(page) {
+  if (page === 1) {
+    allData = [];           // Reset on every fresh load
+    dataFullyLoaded = false;
+  }
+  fetch('/api/table?page=' + page + '&per_page=' + serverPerPage)
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      var pageData = res.data || [];
+      if (!pageData.length && page === 1) {
+        document.getElementById('tableLoading').innerHTML =
+          '<div style="padding:60px;text-align:center;color:var(--text-light);font-size:14px">No data available. Make sure traffic_accidents.csv is in the project folder.</div>';
+        return;
+      }
+
+      // On first page, set up columns and filters
+      if (page === 1) {
+        totalServerRows = res.total || 0;
+        columns = Object.keys(pageData[0] || {});
+        document.getElementById('totalRows').textContent = totalServerRows.toLocaleString();
+        document.getElementById('totalCols').textContent = columns.length;
+
+        // Column filter
+        var colSel = document.getElementById('colFilter');
+        columns.forEach(function(c) {
+          var opt = document.createElement('option');
+          opt.value = c; opt.textContent = c;
+          colSel.appendChild(opt);
+        });
+
+        document.getElementById('tableLoading').style.display = 'none';
+        document.getElementById('tableWrap').style.display    = 'block';
+        document.getElementById('pagination').style.display   = 'flex';
+      }
+
+      // Append to allData
+      allData = allData.concat(pageData);
+      applyFilters();
+
+      // Load next page in background
+      if (allData.length < totalServerRows) {
+        setTimeout(function() { loadPage(page + 1); }, 100);
+      } else {
+        // All loaded — update severity filter now we have full data
+        if (columns.includes('most_severe_injury')) {
+          var sevSel = document.getElementById('severityFilter');
+          var existing = Array.from(sevSel.options).map(function(o){return o.value;});
+          var sevVals = [];
+          allData.forEach(function(r) { if (r.most_severe_injury && !sevVals.includes(r.most_severe_injury)) sevVals.push(r.most_severe_injury); });
+          sevVals.sort().forEach(function(s) {
+            if (!existing.includes(s)) {
+              var opt = document.createElement('option');
+              opt.value = s; opt.textContent = s;
+              sevSel.appendChild(opt);
+            }
+          });
+        }
+        document.getElementById('totalRows').textContent = allData.length.toLocaleString();
+        dataFullyLoaded = true;
+      }
+    })
+    .catch(function(err) {
+      if (page === 1) {
+        document.getElementById('tableLoading').innerHTML =
+          '<div style="padding:60px;text-align:center;color:var(--coral);font-size:14px">Error loading data: ' + err.message + '</div>';
+      }
+    });
+}
+
+loadPage(1); // Loads first 100 rows instantly, rest load in background
+
+function applyFilters() {
+  var search   = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+  var colF     = document.getElementById('colFilter').value;
+  var sevF     = document.getElementById('severityFilter').value;
+  var hourF    = document.getElementById('hourFilter') ? document.getElementById('hourFilter').value : 'all';
+
+  filteredData = allData.filter(function(row) {
+    // Severity filter
+    if (sevF !== 'all') {
+      if ((row.most_severe_injury || '').toString() !== sevF) return false;
+    }
+    // Hour range filter
+    if (hourF !== 'all' && row.crash_hour != null) {
+      var h = parseInt(row.crash_hour);
+      if (hourF === 'night'     && !(h >= 22 || h <= 5))  return false;
+      if (hourF === 'morning'   && !(h >= 6  && h <= 9))   return false;
+      if (hourF === 'afternoon' && !(h >= 10 && h <= 15))  return false;
+      if (hourF === 'evening'   && !(h >= 16 && h <= 20))  return false;
+    }
+    // Search filter
+    if (search !== '') {
+      if (colF !== 'all') {
+        if (String(row[colF] == null ? '' : row[colF]).toLowerCase().indexOf(search) < 0) return false;
+      } else {
+        var found = false;
+        for (var ci = 0; ci < columns.length; ci++) {
+          if (String(row[columns[ci]] == null ? '' : row[columns[ci]]).toLowerCase().indexOf(search) >= 0) {
+            found = true; break;
+          }
+        }
+        if (!found) return false;
+      }
+    }
+    return true;
+  });
+
+  // Sort
+  if (sortCol) {
+    filteredData.sort(function(a, b) {
+      var av = a[sortCol], bv = b[sortCol];
+      var an = parseFloat(av), bn = parseFloat(bv);
+      if (!isNaN(an) && !isNaN(bn)) {
+        return sortDir === 'asc' ? an - bn : bn - an;
+      }
+      return sortDir === 'asc'
+        ? String(av||'').localeCompare(String(bv||''))
+        : String(bv||'').localeCompare(String(av||''));
+    });
+  }
+
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
+  var start = (currentPage - 1) * rowsPerPage;
+  var end   = Math.min(start + rowsPerPage, filteredData.length);
+  var rows  = filteredData.slice(start, end);
+
+  document.getElementById('filteredRows').textContent = filteredData.length.toLocaleString();
+  document.getElementById('pageInfo').textContent     = currentPage + ' / ' + Math.ceil(filteredData.length / rowsPerPage);
+
+  // Build table
+  var html = '<table><thead><tr>';
+  columns.forEach(function(c) {
+    var cls = sortCol === c ? ('sort-' + sortDir) : '';
+    html += '<th class="' + cls + '" onclick="sortBy(\'' + c + '\')">' + c + ' <span class="sort-icon"></span></th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  rows.forEach(function(row) {
+    html += '<tr>';
+    columns.forEach(function(c) {
+      var val = row[c] != null ? row[c] : 'N/A';
+      if (c === 'most_severe_injury') {
+        var style = severityColor(String(val));
+        html += '<td><span class="severity-badge" style="' + style + '">' + val + '</span></td>';
+      } else {
+        html += '<td title="' + val + '">' + val + '</td>';
+      }
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('tableWrap').innerHTML = html;
+
+  // Pagination
+  document.getElementById('pageText').textContent =
+    'Showing ' + (start+1) + '–' + end + ' of ' + filteredData.length.toLocaleString() + ' records';
+  renderPagination();
+}
+
+function renderPagination() {
+  var totalPages = Math.ceil(filteredData.length / rowsPerPage);
+  var wrap = document.getElementById('pageButtons');
+  var html = '';
+
+  html += '<button class="page-btn" onclick="goPage(' + (currentPage-1) + ')" ' + (currentPage===1?'disabled':'') + '>← Prev</button>';
+
+  var start = Math.max(1, currentPage - 2);
+  var end   = Math.min(totalPages, currentPage + 2);
+  if (start > 1)         html += '<button class="page-btn" onclick="goPage(1)">1</button>' + (start > 2 ? '<span style="padding:6px 4px;color:var(--text-light)">…</span>' : '');
+  for (var i = start; i <= end; i++) {
+    html += '<button class="page-btn ' + (i===currentPage?'active':'') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+  }
+  if (end < totalPages)  html += (end < totalPages-1 ? '<span style="padding:6px 4px;color:var(--text-light)">…</span>' : '') + '<button class="page-btn" onclick="goPage(' + totalPages + ')">' + totalPages + '</button>';
+  html += '<button class="page-btn" onclick="goPage(' + (currentPage+1) + ')" ' + (currentPage===totalPages?'disabled':'') + '>Next →</button>';
+
+  // Rows per page
+  html += '<select onchange="changeRowsPerPage(this.value)" style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text);font-family:\'Plus Jakarta Sans\',sans-serif;font-size:12px;cursor:pointer">';
+  [10,25,50,100].forEach(function(n) {
+    html += '<option value="' + n + '"' + (rowsPerPage===n?' selected':'') + '>' + n + ' rows</option>';
+  });
+  html += '</select>';
+
+  wrap.innerHTML = html;
+}
+
+function goPage(p) {
+  var total = Math.ceil(filteredData.length / rowsPerPage);
+  if (p < 1 || p > total) return;
+  currentPage = p;
+  renderTable();
+  document.getElementById('tableWrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function changeRowsPerPage(n) {
+  rowsPerPage = parseInt(n);
+  currentPage = 1;
+  renderTable();
+}
+
+function sortBy(col) {
+  if (sortCol === col) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortCol = col;
+    sortDir = 'asc';
+  }
+  applyFilters();
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('colFilter').value   = 'all';
+  document.getElementById('severityFilter').value = 'all';
+  var hf = document.getElementById('hourFilter'); if(hf) hf.value='all';
+  sortCol = null; sortDir = 'asc';
+  applyFilters();
+}
+
+function exportCSV() {
+  if (!filteredData.length) return;
+  var csv = columns.join(',') + '\n';
+  filteredData.forEach(function(row) {
+    csv += columns.map(function(c) {
+      var v = String(row[c] || '');
+      return v.includes(',') ? '"' + v + '"' : v;
+    }).join(',') + '\n';
+  });
+  var blob = new Blob([csv], {type:'text/csv'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = 'accident_data_filtered.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

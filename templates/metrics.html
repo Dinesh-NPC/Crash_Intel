@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% block title %}ML Metrics — CrashIntel{% endblock %}
+{% block nav_tabs %}
+<a href="/dashboard" class="tab-btn">📊 Dashboard</a>
+<a href="/predict"   class="tab-btn">🤖 Predict</a>
+<a href="/data"      class="tab-btn">🗃️ Data</a>
+<a href="/metrics"   class="tab-btn active">📈 Metrics</a>
+<a href="/about"     class="tab-btn">ℹ️ About</a>
+{% endblock %}
+{% block nav_cta %}<a href="/" class="btn-outline btn-sm">← Home</a>{% endblock %}
+{% block mobile_menu %}
+<a href="/dashboard" class="mobile-link">📊 Dashboard</a>
+<a href="/predict"   class="mobile-link">🤖 Predict</a>
+<a href="/data"      class="mobile-link">🗃️ Data</a>
+<a href="/metrics"   class="mobile-link active">📈 Metrics</a>
+<a href="/about"     class="mobile-link">ℹ️ About</a>
+{% endblock %}
+
+{% block head %}
+<style>
+.mtab-row{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.mtab{padding:10px 20px;border-radius:10px;border:2px solid var(--border);background:var(--card-bg);
+      font-size:13px;font-weight:700;cursor:pointer;color:var(--text-light);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.mtab.active{border-color:var(--navy);background:var(--navy);color:white}
+.mtab:hover:not(.active){border-color:var(--navy);color:var(--navy)}
+.mpanel{display:none}.mpanel.active{display:block}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="app-main">
+
+  <!-- Loading -->
+  <div id="metricsLoading" style="text-align:center;padding:80px 32px">
+    <div style="width:48px;height:48px;border-radius:50%;border:4px solid var(--border);border-top-color:var(--teal);animation:spin .8s linear infinite;margin:0 auto 20px"></div>
+    <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--navy);margin-bottom:6px">Loading Model Metrics...</div>
+    <div style="font-size:13px;color:var(--text-light)">Reading from metrics files</div>
+  </div>
+
+  <div id="metricsError" style="display:none;text-align:center;padding:80px 32px;max-width:480px;margin:0 auto">
+    <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--coral);margin-bottom:10px">Failed to Load</div>
+    <div style="font-size:13px;color:var(--text-mid);margin-bottom:20px" id="metricsErrorMsg"></div>
+    <button onclick="loadAllMetrics()" style="padding:11px 24px;border-radius:10px;background:var(--coral);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">🔄 Retry</button>
+  </div>
+
+  <div id="metricsResults" style="display:none">
+    <div style="margin-bottom:24px">
+      <h2 style="font-family:'Fraunces',serif;font-size:30px;font-weight:900;color:var(--text);margin-bottom:6px">📈 ML Model Metrics</h2>
+      <p style="font-size:14px;color:var(--text-light)">Three models trained on 200K+ traffic accident records · scikit-learn · 80/20 split</p>
+    </div>
+
+    <!-- Model selector tabs -->
+    <div class="mtab-row">
+      <button class="mtab active" onclick="switchMetric('severity',this)">🔴 Severity Model</button>
+      <button class="mtab" onclick="switchMetric('fatal',this)">💀 Fatal Prediction</button>
+    </div>
+
+    <!-- ─── Severity Panel ─────────────────────────────────────────────────── -->
+    <div id="mp_severity" class="mpanel active">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px" class="kpi-grid-metrics">
+        <div class="card" style="padding:22px 20px;background:linear-gradient(135deg,var(--teal),#08a88e);border:none;text-align:center">
+          <div style="font-family:'Fraunces',serif;font-size:42px;font-weight:900;color:white;line-height:1" id="sev_acc">—</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.75);margin-top:8px;letter-spacing:.08em;text-transform:uppercase">Accuracy</div>
+        </div>
+        <div class="card card-hover-coral" style="padding:22px 20px;text-align:center">
+          <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--navy)" id="sev_train">—</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-top:8px;letter-spacing:.08em;text-transform:uppercase">Training Records</div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:3px">80% of dataset</div>
+        </div>
+        <div class="card card-hover-coral" style="padding:22px 20px;text-align:center">
+          <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--navy)" id="sev_test">—</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-top:8px;letter-spacing:.08em;text-transform:uppercase">Test Records</div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:3px">20% of dataset</div>
+        </div>
+        <div class="card card-hover-coral" style="padding:22px 20px;text-align:center">
+          <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--teal)" id="sev_correct">—</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-top:8px;letter-spacing:.08em;text-transform:uppercase">Correct Predictions</div>
+        </div>
+      </div>
+      <div class="chart-grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">🔧 Model Configuration</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+            {% for label, val in [('Algorithm','Logistic Regression'),('Library','scikit-learn'),('Max Iterations','1000'),('Train / Test Split','80% / 20%'),('Random State','42')] %}
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--bg);border-radius:8px">
+              <span style="color:var(--text-light);font-weight:600">{{ label }}</span>
+              <span style="color:var(--text);font-weight:700">{{ val }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px">⚡ PySpark MLlib Pipeline</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            {% for step, desc, color in [('StringIndexer','Converts text columns to numeric indices','#e8392a'),('OneHotEncoder','Binary encodes categorical features','#0f2354'),('VectorAssembler','Combines all features into one vector','#0bbf9f'),('LogisticRegression','Trains classifier on assembled features','#f5a623')] %}
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg);border-radius:10px">
+              <div style="width:32px;height:32px;border-radius:9px;background:{{ color }};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:white;flex-shrink:0">{{ loop.index }}</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--text)">{{ step }}</div>
+                <div style="font-size:11px;color:var(--text-light);margin-top:1px">{{ desc }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title" style="margin-bottom:4px">Per-Class Performance</div>
+        <div class="card-sub" style="margin-bottom:20px">Precision, Recall and F1-score per severity class</div>
+        <div id="sev_classCards" style="display:flex;flex-direction:column;gap:14px"></div>
+      </div>
+    </div>
+
+    <!-- ─── Fatal Panel ────────────────────────────────────────────────────── -->
+    <div id="mp_fatal" class="mpanel">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px" class="kpi-grid-metrics">
+        <div class="card" style="padding:22px 20px;background:linear-gradient(135deg,#e8392a,#c0291d);border:none;text-align:center">
+          <div style="font-family:'Fraunces',serif;font-size:42px;font-weight:900;color:white;line-height:1" id="fat_acc">—</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.75);margin-top:8px;letter-spacing:.08em;text-transform:uppercase">Accuracy</div>
+        </div>
+        <div class="card" style="padding:22px 20px;text-align:center">
+          <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--navy)" id="fat_train">—</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-top:8px;letter-spacing:.08em;text-transform:uppercase">Training Records</div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:3px">with oversampling</div>
+        </div>
+        <div class="card" style="padding:22px 20px;text-align:center">
+          <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--navy)" id="fat_test">—</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-top:8px;letter-spacing:.08em;text-transform:uppercase">Test Records</div>
+        </div>
+        <div class="card" style="padding:22px 20px;text-align:center">
+          <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--teal)" id="fat_correct">—</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-light);margin-top:8px;letter-spacing:.08em;text-transform:uppercase">Correct Predictions</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:20px;padding:20px 24px;background:linear-gradient(135deg,#fff1f0,#fff8f7);border:1px solid rgba(232,57,42,.2)">
+        <div style="font-weight:700;color:#e8392a;font-size:14px;margin-bottom:8px">⚠️ About This Model</div>
+        <div style="font-size:13px;color:var(--text-mid);line-height:1.7">
+          Fatal crashes are very rare (&lt;0.2% of all accidents). To handle this extreme class imbalance,
+          the training set was <strong>oversampled</strong> — fatal cases were duplicated to ~33% of training data.
+          The model uses <strong>class_weight='balanced'</strong> and outputs calibrated probabilities rather than hard binary predictions.
+          Treat the fatal probability as a risk indicator, not a certainty.
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title" style="margin-bottom:4px">Per-Class Performance</div>
+        <div class="card-sub" style="margin-bottom:20px">Binary: Fatal vs No Fatality</div>
+        <div id="fat_classCards" style="display:flex;flex-direction:column;gap:14px"></div>
+      </div>
+    </div>
+
+
+    <!-- What metrics mean (shared) -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">📚 What These Metrics Mean</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        {% for label, desc, color in [
+          ('Accuracy','Out of all test predictions, what percentage were correct.','#e8392a'),
+          ('Precision','Of records predicted as a class, how many actually belonged to it. Measures false alarms.','#0f2354'),
+          ('Recall','Of all actual records in a class, how many did the model correctly catch.','#0bbf9f'),
+          ('F1-Score','Harmonic mean of Precision and Recall. Best single number to judge performance per class.','#f5a623')
+        ] %}
+        <div style="padding:16px;border-radius:12px;background:var(--bg);border-left:4px solid {{ color }}">
+          <div style="font-weight:800;color:{{ color }};font-size:13px;margin-bottom:6px">{{ label }}</div>
+          <div style="font-size:13px;color:var(--text-mid);line-height:1.6">{{ desc }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="bottom-bar">
+  <a href="/dashboard"><span class="bb-icon">📊</span>Dashboard</a>
+  <a href="/predict"><span class="bb-icon">🤖</span>Predict</a>
+  <a href="/data"><span class="bb-icon">🗃️</span>Data</a>
+  <a href="/metrics" class="active"><span class="bb-icon">📈</span>Metrics</a>
+  <a href="/about"><span class="bb-icon">ℹ️</span>About</a>
+</div>
+<footer>CrashIntel · Big Data Analytics · PySpark + Flask + Chart.js</footer>
+{% endblock %}
+
+{% block scripts %}
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:640px){.kpi-grid-metrics{grid-template-columns:repeat(2,1fr)!important}}
+</style>
+<script>
+var ALL_METRICS = {};
+
+function switchMetric(name, btn) {
+  document.querySelectorAll('.mpanel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(b => b.classList.remove('active'));
+  document.getElementById('mp_'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function renderKPIs(prefix, data) {
+  document.getElementById(prefix+'_acc').textContent     = data.accuracy+'%';
+  document.getElementById(prefix+'_train').textContent   = Number(data.total_train).toLocaleString();
+  document.getElementById(prefix+'_test').textContent    = Number(data.total_test).toLocaleString();
+  document.getElementById(prefix+'_correct').textContent = Number(data.correct).toLocaleString();
+}
+
+function renderClassCards(containerId, classMetrics) {
+  var colors = ['#e8392a','#0f2354','#0bbf9f','#f5a623','#7c3aed','#059669','#d97706','#2563eb','#9d174d'];
+  var wrap = document.getElementById(containerId);
+  wrap.innerHTML = '';
+  (classMetrics||[]).forEach(function(cm, i) {
+    var c   = colors[i%colors.length];
+    var f1w = Math.round(cm.f1);
+    var prw = Math.round(cm.precision);
+    var rcw = Math.round(cm.recall);
+    wrap.innerHTML +=
+      '<div style="border:1px solid var(--border);border-radius:14px;padding:16px 20px;background:var(--card-bg)">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<div style="width:10px;height:10px;border-radius:50%;background:'+c+';flex-shrink:0"></div>' +
+            '<span style="font-weight:700;font-size:14px;color:var(--text)">'+cm.label+'</span>' +
+          '</div>' +
+          '<div style="display:flex;gap:16px">' +
+            '<div style="text-align:center"><div style="font-weight:800;font-size:18px;color:var(--navy)">'+cm.precision+'%</div><div style="font-size:10px;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Precision</div></div>' +
+            '<div style="text-align:center"><div style="font-weight:800;font-size:18px;color:var(--teal)">'+cm.recall+'%</div><div style="font-size:10px;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Recall</div></div>' +
+            '<div style="text-align:center"><div style="font-weight:800;font-size:18px;color:'+c+'">'+cm.f1+'%</div><div style="font-size:10px;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:.06em">F1-Score</div></div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:grid;gap:5px">' +
+          '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;font-weight:600;color:var(--text-light);width:56px">F1</span><div style="flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+f1w+'%;background:'+c+';border-radius:4px"></div></div><span style="font-size:11px;font-weight:700;color:'+c+';width:34px;text-align:right">'+cm.f1+'%</span></div>' +
+          '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;font-weight:600;color:var(--text-light);width:56px">Precision</span><div style="flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+prw+'%;background:var(--navy);border-radius:4px"></div></div><span style="font-size:11px;font-weight:700;color:var(--navy);width:34px;text-align:right">'+cm.precision+'%</span></div>' +
+          '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;font-weight:600;color:var(--text-light);width:56px">Recall</span><div style="flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+rcw+'%;background:var(--teal);border-radius:4px"></div></div><span style="font-size:11px;font-weight:700;color:var(--teal);width:34px;text-align:right">'+cm.recall+'%</span></div>' +
+        '</div>' +
+      '</div>';
+  });
+}
+
+function loadAllMetrics() {
+  document.getElementById('metricsLoading').style.display = 'block';
+  document.getElementById('metricsError').style.display   = 'none';
+  document.getElementById('metricsResults').style.display = 'none';
+
+  Promise.all([
+    fetch('/api/metrics').then(r=>r.json()),
+    fetch('/api/metrics/fatal').then(r=>r.json()),
+  ]).then(function([sev, fat]) {
+    document.getElementById('metricsLoading').style.display = 'none';
+    if (sev.error && fat.error) {
+      document.getElementById('metricsError').style.display  = 'block';
+      document.getElementById('metricsErrorMsg').textContent = sev.error;
+      return;
+    }
+    if (!sev.error)  { renderKPIs('sev', sev);   renderClassCards('sev_classCards', sev.class_metrics); }
+    if (!fat.error)  { renderKPIs('fat', fat);   renderClassCards('fat_classCards', fat.class_metrics); }
+    document.getElementById('metricsResults').style.display = 'block';
+  }).catch(function(err) {
+    document.getElementById('metricsLoading').style.display = 'none';
+    document.getElementById('metricsError').style.display   = 'block';
+    document.getElementById('metricsErrorMsg').textContent  = 'Could not load: '+err.message;
+  });
+}
+
+document.addEventListener('DOMContentLoaded', loadAllMetrics);
+</script>
+{% endblock %}
