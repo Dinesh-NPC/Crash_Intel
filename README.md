@@ -8,7 +8,7 @@ The system provides an interactive dashboard, real-time prediction interface, an
 
 ---
 
-# 📌 Project Objectives
+#  Project Objectives
 
 - Analyze traffic accident data efficiently using Big Data tools
 - Predict accident severity using Machine Learning
